@@ -11,9 +11,7 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-@Table(name = "cart_details", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"cart_id", "product_id"})
-})
+@Table(name = "cart_details")
 public class CartDetail {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
