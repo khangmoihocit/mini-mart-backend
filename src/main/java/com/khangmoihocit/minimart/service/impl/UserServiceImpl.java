@@ -1,7 +1,6 @@
 package com.khangmoihocit.minimart.service.impl;
 
 import com.khangmoihocit.minimart.dto.request.UserCreationRequest;
-import com.khangmoihocit.minimart.dto.request.UserUpdateInfoRequest;
 import com.khangmoihocit.minimart.dto.response.UserResponse;
 import com.khangmoihocit.minimart.entity.Role;
 import com.khangmoihocit.minimart.entity.User;
