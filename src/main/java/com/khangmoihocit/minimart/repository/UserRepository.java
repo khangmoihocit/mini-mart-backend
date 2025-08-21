@@ -1,0 +1,8 @@
+package com.khangmoihocit.minimart.repository;
+
+import com.khangmoihocit.minimart.entity.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface UserRepository extends JpaRepository<User, String> {
+
+}
