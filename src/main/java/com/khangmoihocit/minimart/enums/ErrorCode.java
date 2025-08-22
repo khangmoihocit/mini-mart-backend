@@ -31,7 +31,9 @@ public enum ErrorCode {
 
     // --- Lỗi Phân quyền (21xx) ---
     UNAUTHENTICATED(2101, "Vui lòng đăng nhập để thực hiện chức năng này.", HttpStatus.UNAUTHORIZED), // 401
-    UNAUTHORIZED(2102, "Bạn không có quyền truy cập tài nguyên này.", HttpStatus.FORBIDDEN),      // 403
+    UNAUTHORIZED(2102, "Bạn không có quyền truy cập tài nguyên này.", HttpStatus.FORBIDDEN),
+    ERROR_REFRESH_TOKEN(2103, "Lỗi ở refresh token", HttpStatus.BAD_REQUEST),// 403
+    REFRESH_TOKEN_EXPIRED(2104, "quá thời gian refresh token", HttpStatus.BAD_REQUEST),
 
     // --- Lỗi Sản phẩm & Danh mục (3xxx) ---
     PRODUCT_NOT_FOUND(3001, "Không tìm thấy sản phẩm.", HttpStatus.NOT_FOUND),

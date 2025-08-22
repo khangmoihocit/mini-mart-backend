@@ -2,6 +2,8 @@ package com.khangmoihocit.minimart.service.impl;
 
 import com.khangmoihocit.minimart.dto.request.AuthenticationRequest;
 import com.khangmoihocit.minimart.dto.request.IntrospectRequest;
+import com.khangmoihocit.minimart.dto.request.LogoutRequest;
+import com.khangmoihocit.minimart.dto.request.RefreshRequest;
 import com.khangmoihocit.minimart.dto.response.AuthenticationResponse;
 import com.khangmoihocit.minimart.dto.response.IntrospectResponse;
 import com.khangmoihocit.minimart.entity.Token;
@@ -90,6 +92,48 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .build();
     }
 
+    @Override
+    public void logout(LogoutRequest request) throws ParseException, JOSEException  {
+        // Tìm token trong DB
+        var tokenInDb = tokenRepository.findByToken(request.getToken())
+                .orElse(null); // Không tìm thấy thì thôi, không cần báo lỗi
+
+        if (tokenInDb != null) {
+            // Đánh dấu là đã thu hồi và hết hạn
+            tokenInDb.setRevoked(true);
+            tokenInDb.setExpired(true);
+            tokenRepository.save(tokenInDb);
+        }
+    }
+
+    @Override
+    public AuthenticationResponse refreshToken(RefreshRequest request) throws ParseException, JOSEException {
+        // 1. Xác thực token cũ và đảm bảo nó còn hợp lệ
+        var signedJWT = verifyRefreshToken(request.getToken());
+
+        // 2. Thu hồi token cũ
+        var oldTokenInDb = tokenRepository.findByToken(request.getToken())
+                .orElseThrow(() -> new AppException(ErrorCode.UNAUTHENTICATED)); // Lỗi nếu không tìm thấy
+
+        oldTokenInDb.setRevoked(true);
+        oldTokenInDb.setExpired(true);
+        tokenRepository.save(oldTokenInDb);
+
+        // 3. Lấy thông tin user để tạo token mới
+        var username = signedJWT.getJWTClaimsSet().getSubject();
+        var user = userRepository.findByEmail(username)
+                .orElseThrow(() -> new AppException(ErrorCode.ERROR_REFRESH_TOKEN));
+
+        // 4. Tạo và lưu token mới
+        String newTokenString = generateToken(user);
+        saveToken(user, newTokenString);
+
+        return AuthenticationResponse.builder()
+                .token(newTokenString)
+                .authenticated(true)
+                .build();
+    }
+
     private void saveToken(User user, String tokenString) {
         try {
             SignedJWT signedJWT = SignedJWT.parse(tokenString);
@@ -135,6 +179,39 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             tokenInDb.setExpired(true);
             tokenRepository.save(tokenInDb);
             throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
+
+        return signedJWT;
+    }
+
+    private SignedJWT verifyRefreshToken(String tokenString) throws JOSEException, ParseException {
+        JWSVerifier verifier = new MACVerifier(SIGNER_KEY.getBytes());
+        SignedJWT signedJWT = SignedJWT.parse(tokenString);
+
+        // 1. Xác thực chữ ký của token
+        boolean verifiedSignature = signedJWT.verify(verifier);
+        if (!verifiedSignature) {
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
+
+        // 2. Kiểm tra token có trong database và chưa bị thu hồi không
+        var tokenInDb = tokenRepository.findByToken(tokenString)
+                .orElseThrow(() -> new AppException(ErrorCode.UNAUTHENTICATED));
+
+        if (tokenInDb.getRevoked()) {
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
+
+        // 3. Kiểm tra xem token có còn trong thời gian cho phép làm mới không
+        Date issueTime = signedJWT.getJWTClaimsSet().getIssueTime();
+        Instant refreshDeadline = issueTime.toInstant().plus(REFRESHABLE_DURATION, ChronoUnit.SECONDS);
+
+        if (Instant.now().isAfter(refreshDeadline)) {
+            // Nếu đã quá hạn làm mới, cập nhật trạng thái trong DB và báo lỗi
+            tokenInDb.setExpired(true);
+            tokenInDb.setRevoked(true); // Token quá hạn refresh nên bị thu hồi luôn
+            tokenRepository.save(tokenInDb);
+            throw new AppException(ErrorCode.REFRESH_TOKEN_EXPIRED);
         }
 
         return signedJWT;
