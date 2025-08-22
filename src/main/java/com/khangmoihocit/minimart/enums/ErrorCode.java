@@ -11,6 +11,10 @@ public enum ErrorCode {
     INVALID_REQUEST_DATA(1001, "Dữ liệu không hợp lệ.", HttpStatus.BAD_REQUEST),
     INVALID_DOB(1002, "Ngày sinh không hợp lệ. Bạn phải đủ {min} tuổi.", HttpStatus.BAD_REQUEST),
     INFO_NOT_BLANK(1003, "Thông tin không được để trống", HttpStatus.BAD_REQUEST),
+    ID_UPDATE_NOT_BLANK(1004, "User id cần cập nhật không được trống.", HttpStatus.BAD_REQUEST),
+    INVALID_DATE_FORMAT(1005, "Lỗi dịnh dạng ngày (yyyy-mm-dd)", HttpStatus.BAD_REQUEST),
+    NOT_FOUND_PATH(1006, "Lỗi đường dẫn", HttpStatus.NOT_FOUND),
+
 
     // --- Lỗi Người dùng & Xác thực (2xxx) ---
     USER_EXISTED(2001, "Tên đăng nhập đã tồn tại.", HttpStatus.BAD_REQUEST),
@@ -19,6 +23,9 @@ public enum ErrorCode {
     INVALID_PASSWORD(2004, "Mật khẩu phải có ít nhất 8 ký tự.", HttpStatus.BAD_REQUEST),
     USERNAME_INVALID(2005, "Tên đăng nhập phải có ít nhất 3 ký tự.", HttpStatus.BAD_REQUEST),
     LOGIN_FAILED(2006, "Sai tên đăng nhập hoặc mật khẩu.", HttpStatus.UNAUTHORIZED),
+    ROLE_USER_NOT_EXIST(2007, "Role user chưa được khởi tạo", HttpStatus.BAD_REQUEST),
+    USER_NOT_EXIST(2008, "Người dùng không tồn tại", HttpStatus.BAD_REQUEST),
+    ROLE_NOT_EXIST(2009, "Role không tồn tại", HttpStatus.BAD_REQUEST),
 
     // --- Lỗi Phân quyền (21xx) ---
     UNAUTHENTICATED(2101, "Vui lòng đăng nhập để thực hiện chức năng này.", HttpStatus.UNAUTHORIZED), // 401

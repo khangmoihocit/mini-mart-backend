@@ -41,7 +41,7 @@ public class User {
     @Column(name = "date_of_birth")
     LocalDate dateOfBirth;
 
-    @ManyToOne(fetch = FetchType.LAZY) //khi gọi user.getRole.getName() thì jpa mới tạo lệnh sql để lấy
+    @ManyToOne //khi gọi user.getRole.getName() thì jpa mới tạo lệnh sql để lấy
     @JoinColumn(name = "role_id", nullable = false)
     Role role;
 
@@ -52,14 +52,10 @@ public class User {
     LocalDateTime updatedAt;
 
 
-    /*
-    @PrePersist và @PreUpdate là các annotation của JPA (Java Persistence API)
-    dùng để tự động thực thi một phương thức ngay trước khi một đối tượng (entity) được lưu
-    hoặc cập nhật xuống cơ sở dữ liệu.
-    Chúng được gọi là "Lifecycle Callbacks".
-
-    */
-
+    /* @PrePersist và @PreUpdate là các annotation của JPA (Java Persistence API)
+        dùng để tự động thực thi một phương thức ngay trước khi một đối tượng (entity) được lưu
+        hoặc cập nhật xuống cơ sở dữ liệu.
+        Chúng được gọi là "Lifecycle Callbacks".*/
     // Sẽ chạy KHI VÀ CHỈ KHI bạn tạo mới một bản ghi
     @PrePersist
     protected void onCreate() {

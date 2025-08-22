@@ -20,7 +20,7 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "user_id")
     User user;
 
@@ -53,7 +53,7 @@ public class Order {
     @Column(name = "payment_method", length = 100)
     String paymentMethod;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "coupon_id")
     Coupon coupon;
 

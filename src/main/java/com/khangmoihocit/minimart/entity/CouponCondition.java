@@ -17,7 +17,7 @@ public class CouponCondition {
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "coupon_id", nullable = false)
     Coupon coupon;
 

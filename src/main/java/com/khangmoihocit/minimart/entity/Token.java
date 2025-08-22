@@ -35,7 +35,7 @@ public class Token {
     @Builder.Default
     Boolean expired = false;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     User user;
 }

@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 public class UserUpdateInfoRequest {
     String fullName;
     String email;
+    String password;
     String phoneNumber;
     String address;
     Boolean isActive;
@@ -23,5 +24,5 @@ public class UserUpdateInfoRequest {
     @Past(message = "Ngày sinh không được lớn hơn ngày hôm nay")
     LocalDate dateOfBirth;
 
-    Role role;
+    String roleName;
 }
