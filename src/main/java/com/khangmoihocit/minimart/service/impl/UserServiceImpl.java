@@ -17,6 +17,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -55,33 +57,51 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponse updateUser(UserUpdateInfoRequest request, String id) {
         if(Objects.isNull(id) || id.equals("")) throw new AppException(ErrorCode.ID_UPDATE_NOT_BLANK);
-        User user = userRepository.findById(id)
+
+        var context = SecurityContextHolder.getContext();
+        String name = context.getAuthentication().getName();
+
+        User user = userRepository.findByEmail(name)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        userMapper.updateUser(user, request);
+        if(!user.getId().equals(id) && user.getRole().getName().equals("USER")){
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
 
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        User userUpdate = userRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        userMapper.updateUser(userUpdate, request);
+
+        userUpdate.setPassword(passwordEncoder.encode(request.getPassword()));
         Role roleUpdate = roleRepository.findByName(request.getRoleName())
                 .orElseThrow(()-> new AppException(ErrorCode.ROLE_NOT_EXIST));
-        user.setRole(roleUpdate);
+        userUpdate.setRole(roleUpdate);
 
         try {
-            user = userRepository.save(user);
+            userUpdate = userRepository.save(userUpdate);
         } catch (DataIntegrityViolationException ex) {
             throw new AppException(ErrorCode.EMAIL_EXISTED);
         }
 
-        return userMapper.toUserResponse(user);
+        return userMapper.toUserResponse(userUpdate);
     }
 
+    @PostAuthorize("returnObject.username == authentication.name")
     @Override
     public UserResponse getUser(String id) {
-        return null;
+        return userMapper.toUserResponse(userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found")));
     }
 
     @Override
     public UserResponse getMyInfo() {
-        return null;
+        var context = SecurityContextHolder.getContext();
+        String name = context.getAuthentication().getName();
+        User user = userRepository.findByEmail(name)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        return userMapper.toUserResponse(user);
     }
 
     @Override
