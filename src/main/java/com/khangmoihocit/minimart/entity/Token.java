@@ -29,7 +29,7 @@ public class Token {
 
     @Column(name = "revoked")
     @Builder.Default
-    Boolean revoked = false;
+    Boolean revoked = false; //đã thu hồi
 
     @Column(name = "expired")
     @Builder.Default

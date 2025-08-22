@@ -26,6 +26,8 @@ public enum ErrorCode {
     ROLE_USER_NOT_EXIST(2007, "Role user chưa được khởi tạo", HttpStatus.BAD_REQUEST),
     USER_NOT_EXIST(2008, "Người dùng không tồn tại", HttpStatus.BAD_REQUEST),
     ROLE_NOT_EXIST(2009, "Role không tồn tại", HttpStatus.BAD_REQUEST),
+    ROLE_ADMIN_NOT_INITIALIZED(2010, "role admin chưa được khởi tạo", HttpStatus.NOT_FOUND),
+
 
     // --- Lỗi Phân quyền (21xx) ---
     UNAUTHENTICATED(2101, "Vui lòng đăng nhập để thực hiện chức năng này.", HttpStatus.UNAUTHORIZED), // 401
