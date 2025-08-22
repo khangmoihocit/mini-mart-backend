@@ -18,7 +18,7 @@ public class Token {
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
 
-    @Column(name = "token", nullable = false, unique = true)
+    @Column(name = "token", nullable = false, columnDefinition = "TEXT")
     String token;
 
     @Column(name = "token_type", nullable = false, length = 50)
@@ -29,13 +29,13 @@ public class Token {
 
     @Column(name = "revoked")
     @Builder.Default
-    Boolean revoked = false;
+    Boolean revoked = false; //đã thu hồi
 
     @Column(name = "expired")
     @Builder.Default
     Boolean expired = false;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     User user;
 }

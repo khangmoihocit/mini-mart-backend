@@ -38,7 +38,7 @@ public class Product {
     @Builder.Default
     Integer stockQuantity = 0;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "category_id")
     Category category;
 

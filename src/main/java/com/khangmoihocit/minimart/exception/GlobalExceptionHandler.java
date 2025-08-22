@@ -8,9 +8,13 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.nio.file.AccessDeniedException;
 import java.util.HashMap;
@@ -22,14 +26,14 @@ import java.util.Objects;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = Exception.class)
-    ResponseEntity<ApiResponse> handlingRuntimeException(RuntimeException exception) {
+    ResponseEntity<ApiResponse> handlingException(Exception exception) {
         log.error("Exception: ", exception);
         ApiResponse apiResponse = new ApiResponse();
 
         apiResponse.setCode(ErrorCode.UNCATEGORIZED_EXCEPTION.getCode());
         apiResponse.setMessage(ErrorCode.UNCATEGORIZED_EXCEPTION.getMessage());
 
-        return ResponseEntity.badRequest().body(apiResponse);
+        return ResponseEntity.status(ErrorCode.UNCATEGORIZED_EXCEPTION.getStatusCode()).body(apiResponse);
     }
 
 
@@ -48,7 +52,7 @@ public class GlobalExceptionHandler {
     }
 
     //xử lý không có quyền
-    @ExceptionHandler(value = AccessDeniedException.class)
+    @ExceptionHandler(value = AuthorizationDeniedException.class)
     ResponseEntity<ApiResponse> handlingAccessDeniedException() {
         ErrorCode errorCode = ErrorCode.UNAUTHORIZED;
 
@@ -72,7 +76,7 @@ public class GlobalExceptionHandler {
         );
     }
 
-    @ExceptionHandler(value= InvalidDataAccessApiUsageException.class)
+    @ExceptionHandler(value = InvalidDataAccessApiUsageException.class)
     ResponseEntity<ApiResponse> handlingInvalidData(InvalidDataAccessApiUsageException exception) {
         ErrorCode errorCode = ErrorCode.UNCATEGORIZED_EXCEPTION;
 
@@ -84,9 +88,22 @@ public class GlobalExceptionHandler {
         );
     }
 
-    @ExceptionHandler(value= DataIntegrityViolationException.class)
-    ResponseEntity<ApiResponse> handlingInvalidData(DataIntegrityViolationException exception) {
-        ErrorCode errorCode = ErrorCode.EMAIL_EXISTED;
+    //token invalid
+    @ExceptionHandler(value = JwtException.class)
+    ResponseEntity<ApiResponse> handlingInvalidToken(JwtException exception) {
+        ErrorCode errorCode = ErrorCode.UNCATEGORIZED_EXCEPTION;
+
+        return ResponseEntity.status(errorCode.getStatusCode()).body(
+                ApiResponse.builder()
+                        .code(errorCode.getCode())
+                        .message(exception.getMessage())
+                        .build()
+        );
+    }
+
+    @ExceptionHandler(value = NoResourceFoundException.class)
+    ResponseEntity<ApiResponse> handlingState(NoResourceFoundException exception) {
+        ErrorCode errorCode = ErrorCode.NOT_FOUND_PATH;
 
         return ResponseEntity.status(errorCode.getStatusCode()).body(
                 ApiResponse.builder()
@@ -95,6 +112,18 @@ public class GlobalExceptionHandler {
                         .build()
         );
     }
+
+//    @ExceptionHandler(value= DataIntegrityViolationException.class)
+//    ResponseEntity<ApiResponse> handlingInvalidData(DataIntegrityViolationException exception) {
+//        ErrorCode errorCode = ErrorCode.EMAIL_EXISTED;
+//
+//        return ResponseEntity.status(errorCode.getStatusCode()).body(
+//                ApiResponse.builder()
+//                        .code(errorCode.getCode())
+//                        .message(errorCode.getMessage())
+//                        .build()
+//        );
+//    }
 
     //customer message @valid
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
