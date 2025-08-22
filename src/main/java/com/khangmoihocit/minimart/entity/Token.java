@@ -18,7 +18,7 @@ public class Token {
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
 
-    @Column(name = "token", nullable = false, unique = true)
+    @Column(name = "token", nullable = false, columnDefinition = "TEXT")
     String token;
 
     @Column(name = "token_type", nullable = false, length = 50)

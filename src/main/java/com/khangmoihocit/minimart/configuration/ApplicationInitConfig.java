@@ -42,7 +42,7 @@ public class ApplicationInitConfig {
 
                 User user = User.builder()
                         .email("admin@gmail.com")
-                        .password(passwordEncoder.encode("admin"))
+                        .password(passwordEncoder.encode("admin1802"))
                         .fullName("Phạm Văn Khang")
                         .phoneNumber("0987654321")
                         .role(role)
