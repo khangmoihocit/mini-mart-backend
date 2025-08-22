@@ -58,6 +58,7 @@ public class UserServiceImpl implements UserService {
     public UserResponse updateUser(UserUpdateInfoRequest request, String id) {
         if(Objects.isNull(id) || id.equals("")) throw new AppException(ErrorCode.ID_UPDATE_NOT_BLANK);
 
+        //chỉ user đang đăng nhập mới có thể sửa thông tin của mình hoặc admin
         var context = SecurityContextHolder.getContext();
         String name = context.getAuthentication().getName();
 
