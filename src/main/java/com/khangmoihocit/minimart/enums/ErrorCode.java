@@ -27,6 +27,8 @@ public enum ErrorCode {
     USER_NOT_EXIST(2008, "Người dùng không tồn tại", HttpStatus.BAD_REQUEST),
     ROLE_NOT_EXIST(2009, "Role không tồn tại", HttpStatus.BAD_REQUEST),
     ROLE_ADMIN_NOT_INITIALIZED(2010, "role admin chưa được khởi tạo", HttpStatus.NOT_FOUND),
+    EMAIL_INVALID(2011, "Email không đúng định dạng.", HttpStatus.BAD_REQUEST),
+
 
 
     // --- Lỗi Phân quyền (21xx) ---
