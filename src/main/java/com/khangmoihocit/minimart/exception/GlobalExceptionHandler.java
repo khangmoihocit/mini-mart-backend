@@ -54,7 +54,7 @@ public class GlobalExceptionHandler {
     //xử lý không có quyền
     @ExceptionHandler(value = AuthorizationDeniedException.class)
     ResponseEntity<ApiResponse> handlingAccessDeniedException() {
-        ErrorCode errorCode = ErrorCode.UNAUTHORIZED;
+        ErrorCode errorCode = ErrorCode.ACCESS_DENIED;
 
         return ResponseEntity.status(errorCode.getStatusCode()).body(
                 ApiResponse.builder()
@@ -126,15 +126,15 @@ public class GlobalExceptionHandler {
 //    }
 
     //customer message @valid
-    @ExceptionHandler(value = MethodArgumentNotValidException.class)
-    ResponseEntity<ApiResponse> handlingValidation(MethodArgumentNotValidException exception) {
-        ErrorCode errorCode = ErrorCode.INVALID_REQUEST_DATA;
-
-        ApiResponse<Object> apiResponse = new ApiResponse<>();
-        apiResponse.setCode(errorCode.getCode());
-        apiResponse.setMessage(exception.getFieldError().getDefaultMessage());
-
-        return ResponseEntity.badRequest().body(apiResponse);
-    }
+//    @ExceptionHandler(value = MethodArgumentNotValidException.class)
+//    ResponseEntity<ApiResponse> handlingValidation(MethodArgumentNotValidException exception) {
+//        ErrorCode errorCode = ErrorCode.INVALID_REQUEST_DATA;
+//
+//        ApiResponse<Object> apiResponse = new ApiResponse<>();
+//        apiResponse.setCode(errorCode.getCode());
+//        apiResponse.setMessage(exception.getFieldError().getDefaultMessage());
+//
+//        return ResponseEntity.badRequest().body(apiResponse);
+//    }
 
 }
