@@ -29,8 +29,4 @@ public class UserCreationRequest {
     @NotBlank(message = "Số điện thoại không được trống")
     String phoneNumber;
 
-    String address;
-
-    @Past(message = "Ngày sinh không được lớn hơn ngày hôm nay")
-    LocalDate dateOfBirth;
 }
