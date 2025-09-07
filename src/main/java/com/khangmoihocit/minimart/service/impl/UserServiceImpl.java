@@ -66,7 +66,7 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         if(!user.getId().equals(id) && user.getRole().getName().equals("USER")){
-            throw new AppException(ErrorCode.UNAUTHORIZED);
+            throw new AppException(ErrorCode.ACCESS_DENIED);
         }
 
         User userUpdate = userRepository.findById(id)

@@ -22,7 +22,7 @@ public enum ErrorCode {
     USER_NOT_FOUND(2003, "Không tìm thấy người dùng.", HttpStatus.NOT_FOUND),
     INVALID_PASSWORD(2004, "Mật khẩu phải có ít nhất 8 ký tự.", HttpStatus.BAD_REQUEST),
     USERNAME_INVALID(2005, "Tên đăng nhập phải có ít nhất 3 ký tự.", HttpStatus.BAD_REQUEST),
-    LOGIN_FAILED(2006, "Sai tên đăng nhập hoặc mật khẩu.", HttpStatus.UNAUTHORIZED),
+    LOGIN_FAILED(2006, "Sai tên đăng nhập hoặc mật khẩu.", HttpStatus.BAD_REQUEST),
     ROLE_USER_NOT_EXIST(2007, "Role user chưa được khởi tạo", HttpStatus.BAD_REQUEST),
     USER_NOT_EXIST(2008, "Người dùng không tồn tại", HttpStatus.BAD_REQUEST),
     ROLE_NOT_EXIST(2009, "Role không tồn tại", HttpStatus.BAD_REQUEST),
@@ -30,8 +30,15 @@ public enum ErrorCode {
 
 
     // --- Lỗi Phân quyền (21xx) ---
+    // Lỗi này xảy ra khi người dùng cố gắng truy cập tài nguyên cần đăng nhập
+    // mà không cung cấp token hợp lệ.
+    // HTTP Status là 401.
     UNAUTHENTICATED(2101, "Vui lòng đăng nhập để thực hiện chức năng này.", HttpStatus.UNAUTHORIZED), // 401
-    UNAUTHORIZED(2102, "Bạn không có quyền truy cập tài nguyên này.", HttpStatus.FORBIDDEN),
+
+    // Lỗi này xảy ra khi người dùng đã đăng nhập (đã xác thực), nhưng không có đủ quyền (role) để truy cập tài nguyên.
+    // Ví dụ: USER cố gắng truy cập API của ADMIN.
+    // HTTP Status là 403.
+    ACCESS_DENIED(2102, "Bạn không có quyền truy cập tài nguyên này.", HttpStatus.FORBIDDEN), // 403,
     ERROR_REFRESH_TOKEN(2103, "Lỗi ở refresh token", HttpStatus.BAD_REQUEST),// 403
     REFRESH_TOKEN_EXPIRED(2104, "quá thời gian refresh token", HttpStatus.BAD_REQUEST),
 
@@ -53,8 +60,7 @@ public enum ErrorCode {
     ;
 
 
-
-    ErrorCode(int code, String message, HttpStatusCode statusCode){
+    ErrorCode(int code, String message, HttpStatusCode statusCode) {
         this.code = code;
         this.message = message;
         this.statusCode = statusCode;
