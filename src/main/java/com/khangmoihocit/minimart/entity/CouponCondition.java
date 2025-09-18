@@ -3,6 +3,8 @@ package com.khangmoihocit.minimart.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,6 +21,7 @@ public class CouponCondition {
 
     @ManyToOne
     @JoinColumn(name = "coupon_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     Coupon coupon;
 
     @Column(name = "attribute", nullable = false)

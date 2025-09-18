@@ -3,6 +3,9 @@ package com.khangmoihocit.minimart.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -43,6 +46,7 @@ public class User {
 
     @ManyToOne //khi gọi user.getRole.getName() thì jpa mới tạo lệnh sql để lấy
     @JoinColumn(name = "role_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     Role role;
 
     @Column(name = "created_at")

@@ -35,7 +35,7 @@ public enum ErrorCode {
     // Lỗi này xảy ra khi người dùng cố gắng truy cập tài nguyên cần đăng nhập
     // mà không cung cấp token hợp lệ.
     // HTTP Status là 401.
-    UNAUTHENTICATED(2101, "Vui lòng đăng nhập để thực hiện chức năng này.", HttpStatus.UNAUTHORIZED), // 401
+    UNAUTHENTICATED(2101, "Vui lòng đăng nhập", HttpStatus.UNAUTHORIZED), // 401
 
     // Lỗi này xảy ra khi người dùng đã đăng nhập (đã xác thực), nhưng không có đủ quyền (role) để truy cập tài nguyên.
     // Ví dụ: USER cố gắng truy cập API của ADMIN.

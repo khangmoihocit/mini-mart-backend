@@ -26,7 +26,8 @@ import java.util.List;
 public class SecurityConfig {
 
     private final String[] PUBLIC_ENDPOINTS =
-            {"api/v1/users", "api/v1/auth/log-in", "api/v1/auth/introspect", "api/v1/auth/logout", "api/v1/auth/refresh"};
+            {"api/v1/users", "api/v1/auth/log-in", "api/v1/auth/introspect", "api/v1/auth/logout",
+                    "api/v1/auth/refresh"};
 
     @Autowired
     CustomJwtDecoder customJwtDecoder;
