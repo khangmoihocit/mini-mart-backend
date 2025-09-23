@@ -3,6 +3,8 @@ package com.khangmoihocit.minimart.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,10 +21,12 @@ public class CartDetail {
 
     @ManyToOne
     @JoinColumn(name = "cart_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     Cart cart;
 
     @ManyToOne
     @JoinColumn(name = "product_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     Product product;
 
     @Column(name = "quantity", nullable = false)

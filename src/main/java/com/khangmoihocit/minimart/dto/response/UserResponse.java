@@ -10,6 +10,7 @@ import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
@@ -24,7 +25,7 @@ public class UserResponse {
     String address;
     Boolean isActive;
     LocalDate dateOfBirth;
-    Role role;
+    Set<RoleResponse> roles;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
 }

@@ -93,7 +93,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public void logout(LogoutRequest request) throws ParseException, JOSEException  {
+    public void logout(LogoutRequest request) throws ParseException, JOSEException {
         // Tìm token trong DB
         var tokenInDb = tokenRepository.findByToken(request.getToken())
                 .orElse(null); // Không tìm thấy thì thôi, không cần báo lỗi
@@ -245,8 +245,15 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     //custom SCOPE_ sang ROLE_
     private String buildScope(User user) {
         StringJoiner stringJoiner = new StringJoiner(" ");
-        if(user.getRole() != null){
-            stringJoiner.add("ROLE_" + user.getRole().getName());
+        if (!CollectionUtils.isEmpty(user.getRoles())) {
+            user.getRoles().forEach(role -> {
+                stringJoiner.add("ROLE_" + role.getName());
+                if (!CollectionUtils.isEmpty(role.getPermissions())) {
+                    role.getPermissions().forEach(permission -> {
+                        stringJoiner.add(permission.getName());
+                    });
+                }
+            });
         }
         return stringJoiner.toString();
     }

@@ -16,6 +16,6 @@ public class AuthenticationRequest {
     String email;
 
     @NotBlank(message = "Mật khẩu không được để trống")
-    @Size(min = 8, message = "INVALID_PASSWORD")
+    @Size(min = 8, message = "Mật khẩu phải từ 8 kí tự")
     String password;
 }

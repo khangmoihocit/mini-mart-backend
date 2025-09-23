@@ -19,18 +19,19 @@ import java.util.List;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api/v1/users")
 public class UserController {
     UserService userService;
 
-    @PostMapping("/register")
+    @PostMapping
     ApiResponse<UserResponse> createUser(@Valid @RequestBody UserCreationRequest request) {
         return ApiResponse.<UserResponse>builder()
                 .result(userService.createUser(request))
                 .build();
     }
 
-    @PutMapping("/update/{id}")
+    @PreAuthorize("hasAuthority('UPDATE_DATA')")
+    @PutMapping("/{id}")
     ApiResponse<UserResponse> updateUser(@Valid @RequestBody UserUpdateInfoRequest request,
                                          @PathVariable String id){
         return ApiResponse.<UserResponse>builder()
@@ -39,15 +40,15 @@ public class UserController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/get-all")
+    @GetMapping
     ApiResponse<List<UserResponse>> getAll(){
         return ApiResponse.<List<UserResponse>>builder()
                 .result(userService.getUsers())
                 .build();
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
-    @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasAuthority('DELETE_DATA')")
+    @DeleteMapping("/{id}")
     ApiResponse<Void> deleteById(@PathVariable String id){
         userService.deleteUser(id);
         return ApiResponse.<Void>builder()

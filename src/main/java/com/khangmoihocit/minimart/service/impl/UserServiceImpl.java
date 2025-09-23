@@ -10,6 +10,7 @@ import com.khangmoihocit.minimart.exception.AppException;
 import com.khangmoihocit.minimart.mapper.UserMapper;
 import com.khangmoihocit.minimart.repository.RoleRepository;
 import com.khangmoihocit.minimart.repository.UserRepository;
+import com.khangmoihocit.minimart.service.AuthenticationService;
 import com.khangmoihocit.minimart.service.UserService;
 import lombok.AccessLevel;
 import lombok.NonNull;
@@ -22,9 +23,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -33,6 +32,7 @@ import java.util.Objects;
 public class UserServiceImpl implements UserService {
     UserRepository userRepository;
     RoleRepository roleRepository;
+    AuthenticationService authenticationService;
     UserMapper userMapper;
     PasswordEncoder passwordEncoder;
 
@@ -42,10 +42,13 @@ public class UserServiceImpl implements UserService {
 
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
-        Role roleUser = roleRepository.findByName("USER")
-                .orElseThrow(() -> new AppException(ErrorCode.ROLE_USER_NOT_EXIST));
+        Role role = new Role();
+        if (!roleRepository.existsById("USER")) throw new AppException(ErrorCode.ROLE_USER_NOT_EXIST);
+        role = roleRepository.getById("USER");
+        Set<Role> roles = new HashSet<>();
+        roles.add(role);
+        user.setRoles(roles);
 
-        user.setRole(roleUser);
         try {
             user = userRepository.save(user);
         } catch (DataIntegrityViolationException ex) {
@@ -56,28 +59,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse updateUser(UserUpdateInfoRequest request, String id) {
-        if(Objects.isNull(id) || id.equals("")) throw new AppException(ErrorCode.ID_UPDATE_NOT_BLANK);
-
-        //chỉ user đang đăng nhập mới có thể sửa thông tin của mình hoặc admin
-        var context = SecurityContextHolder.getContext();
-        String name = context.getAuthentication().getName();
-
-        User user = userRepository.findByEmail(name)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-
-        if(!user.getId().equals(id) && user.getRole().getName().equals("USER")){
-            throw new AppException(ErrorCode.ACCESS_DENIED);
-        }
+        if (Objects.isNull(id) || id.equals("")) throw new AppException(ErrorCode.ID_UPDATE_NOT_BLANK);
 
         User userUpdate = userRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-
         userMapper.updateUser(userUpdate, request);
-
         userUpdate.setPassword(passwordEncoder.encode(request.getPassword()));
-        Role roleUpdate = roleRepository.findByName(request.getRoleName())
-                .orElseThrow(()-> new AppException(ErrorCode.ROLE_NOT_EXIST));
-        userUpdate.setRole(roleUpdate);
+
+        if (request.getRoles() != null) {
+            var roles = roleRepository.findAllById(request.getRoles());
+            userUpdate.setRoles(new HashSet<>(roles));
+        }
 
         try {
             userUpdate = userRepository.save(userUpdate);
@@ -108,13 +100,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserResponse> getUsers() {
         List<User> users = userRepository.findAll();
-        if(users.isEmpty()) throw new AppException(ErrorCode.USER_NOT_FOUND);
+        if (users.isEmpty()) throw new AppException(ErrorCode.USER_NOT_FOUND);
         return users.stream().map(userMapper::toUserResponse).toList();
     }
 
     @Override
     public void deleteUser(String id) {
-        if(!userRepository.existsById(id)) throw new AppException(ErrorCode.USER_NOT_EXIST);
+        if (!userRepository.existsById(id)) throw new AppException(ErrorCode.USER_NOT_EXIST);
         userRepository.deleteById(id);
     }
+
 }

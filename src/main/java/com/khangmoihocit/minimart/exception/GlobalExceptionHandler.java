@@ -128,30 +128,11 @@ public class GlobalExceptionHandler {
     //customer Thông báo từ errorcode
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
     ResponseEntity<ApiResponse> handlingValidation(MethodArgumentNotValidException exception) {
-        String enumKey = exception.getFieldError().getDefaultMessage();
-
         ErrorCode errorCode = ErrorCode.INVALID_REQUEST_DATA;
 
-        //Lấy các thuộc tính từ exception
-        Map<String, Object> attributes = null;
-        try {
-            errorCode = ErrorCode.valueOf(enumKey);
-
-            var constraintViolation =
-                    exception.getBindingResult().getAllErrors().getFirst().unwrap(ConstraintViolation.class);
-
-            attributes = constraintViolation.getConstraintDescriptor().getAttributes();
-
-            log.info(attributes.toString());
-
-        } catch (IllegalArgumentException e) {
-
-        }
-
-        ApiResponse apiResponse = new ApiResponse();
-
+        ApiResponse<Object> apiResponse = new ApiResponse<>();
         apiResponse.setCode(errorCode.getCode());
-        apiResponse.setMessage(errorCode.getMessage());
+        apiResponse.setMessage(exception.getFieldError().getDefaultMessage());
 
         return ResponseEntity.badRequest().body(apiResponse);
     }

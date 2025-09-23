@@ -27,13 +27,15 @@ public enum ErrorCode {
     USER_NOT_EXIST(2008, "Người dùng không tồn tại", HttpStatus.BAD_REQUEST),
     ROLE_NOT_EXIST(2009, "Role không tồn tại", HttpStatus.BAD_REQUEST),
     ROLE_ADMIN_NOT_INITIALIZED(2010, "role admin chưa được khởi tạo", HttpStatus.NOT_FOUND),
+    EMAIL_INVALID(2011, "Email không đúng định dạng.", HttpStatus.BAD_REQUEST),
+
 
 
     // --- Lỗi Phân quyền (21xx) ---
     // Lỗi này xảy ra khi người dùng cố gắng truy cập tài nguyên cần đăng nhập
     // mà không cung cấp token hợp lệ.
     // HTTP Status là 401.
-    UNAUTHENTICATED(2101, "Vui lòng đăng nhập để thực hiện chức năng này.", HttpStatus.UNAUTHORIZED), // 401
+    UNAUTHENTICATED(2101, "Vui lòng đăng nhập", HttpStatus.UNAUTHORIZED), // 401
 
     // Lỗi này xảy ra khi người dùng đã đăng nhập (đã xác thực), nhưng không có đủ quyền (role) để truy cập tài nguyên.
     // Ví dụ: USER cố gắng truy cập API của ADMIN.

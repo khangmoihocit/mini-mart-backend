@@ -4,6 +4,9 @@ import com.khangmoihocit.minimart.enums.OrderStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -55,6 +58,7 @@ public class Order {
 
     @ManyToOne
     @JoinColumn(name = "coupon_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     Coupon coupon;
 
     @Column(name = "order_date")
