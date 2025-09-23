@@ -30,6 +30,7 @@ public class UserController {
                 .build();
     }
 
+    @PreAuthorize("hasAuthority('UPDATE_DATA')")
     @PutMapping("/{id}")
     ApiResponse<UserResponse> updateUser(@Valid @RequestBody UserUpdateInfoRequest request,
                                          @PathVariable String id){
@@ -46,7 +47,7 @@ public class UserController {
                 .build();
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('DELETE_DATA')")
     @DeleteMapping("/{id}")
     ApiResponse<Void> deleteById(@PathVariable String id){
         userService.deleteUser(id);

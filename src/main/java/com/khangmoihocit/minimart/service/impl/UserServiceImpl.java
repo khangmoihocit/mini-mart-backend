@@ -10,6 +10,7 @@ import com.khangmoihocit.minimart.exception.AppException;
 import com.khangmoihocit.minimart.mapper.UserMapper;
 import com.khangmoihocit.minimart.repository.RoleRepository;
 import com.khangmoihocit.minimart.repository.UserRepository;
+import com.khangmoihocit.minimart.service.AuthenticationService;
 import com.khangmoihocit.minimart.service.UserService;
 import lombok.AccessLevel;
 import lombok.NonNull;
@@ -22,9 +23,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -33,6 +32,7 @@ import java.util.Objects;
 public class UserServiceImpl implements UserService {
     UserRepository userRepository;
     RoleRepository roleRepository;
+    AuthenticationService authenticationService;
     UserMapper userMapper;
     PasswordEncoder passwordEncoder;
 
@@ -43,11 +43,11 @@ public class UserServiceImpl implements UserService {
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
         Role role = new Role();
-
         if (!roleRepository.existsById("USER")) throw new AppException(ErrorCode.ROLE_USER_NOT_EXIST);
         role = roleRepository.getById("USER");
-
-        user.getRoles().add(role);
+        Set<Role> roles = new HashSet<>();
+        roles.add(role);
+        user.setRoles(roles);
 
         try {
             user = userRepository.save(user);
@@ -63,13 +63,13 @@ public class UserServiceImpl implements UserService {
 
         User userUpdate = userRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-
         userMapper.updateUser(userUpdate, request);
-
         userUpdate.setPassword(passwordEncoder.encode(request.getPassword()));
 
-        //chưa fix
-
+        if (request.getRoles() != null) {
+            var roles = roleRepository.findAllById(request.getRoles());
+            userUpdate.setRoles(new HashSet<>(roles));
+        }
 
         try {
             userUpdate = userRepository.save(userUpdate);
@@ -109,4 +109,5 @@ public class UserServiceImpl implements UserService {
         if (!userRepository.existsById(id)) throw new AppException(ErrorCode.USER_NOT_EXIST);
         userRepository.deleteById(id);
     }
+
 }

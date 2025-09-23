@@ -7,6 +7,8 @@ import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
@@ -24,5 +26,5 @@ public class UserUpdateInfoRequest {
     @Past(message = "Ngày sinh không được lớn hơn ngày hôm nay")
     LocalDate dateOfBirth;
 
-    String roleName;
+    List<String> roles;
 }
