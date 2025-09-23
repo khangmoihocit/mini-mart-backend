@@ -8,6 +8,8 @@ import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -44,10 +46,11 @@ public class User {
     @Column(name = "date_of_birth")
     LocalDate dateOfBirth;
 
-    @ManyToOne //khi gọi user.getRole.getName() thì jpa mới tạo lệnh sql để lấy
-    @JoinColumn(name = "role_id", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    Role role;
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "user_role",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_name"))
+    Set<Role> roles = new HashSet<>();
 
     @Column(name = "created_at")
     LocalDateTime createdAt;

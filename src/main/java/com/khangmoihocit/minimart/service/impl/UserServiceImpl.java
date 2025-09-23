@@ -42,10 +42,13 @@ public class UserServiceImpl implements UserService {
 
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
-        Role roleUser = roleRepository.findByName("USER")
-                .orElseThrow(() -> new AppException(ErrorCode.ROLE_USER_NOT_EXIST));
+        Role role = new Role();
 
-        user.setRole(roleUser);
+        if (!roleRepository.existsById("USER")) throw new AppException(ErrorCode.ROLE_USER_NOT_EXIST);
+        role = roleRepository.getById("USER");
+
+        user.getRoles().add(role);
+
         try {
             user = userRepository.save(user);
         } catch (DataIntegrityViolationException ex) {
@@ -56,18 +59,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse updateUser(UserUpdateInfoRequest request, String id) {
-        if(Objects.isNull(id) || id.equals("")) throw new AppException(ErrorCode.ID_UPDATE_NOT_BLANK);
-
-        //chỉ user đang đăng nhập mới có thể sửa thông tin của mình hoặc admin
-        var context = SecurityContextHolder.getContext();
-        String name = context.getAuthentication().getName();
-
-        User user = userRepository.findByEmail(name)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-
-        if(!user.getId().equals(id) && user.getRole().getName().equals("USER")){
-            throw new AppException(ErrorCode.ACCESS_DENIED);
-        }
+        if (Objects.isNull(id) || id.equals("")) throw new AppException(ErrorCode.ID_UPDATE_NOT_BLANK);
 
         User userUpdate = userRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
@@ -75,9 +67,9 @@ public class UserServiceImpl implements UserService {
         userMapper.updateUser(userUpdate, request);
 
         userUpdate.setPassword(passwordEncoder.encode(request.getPassword()));
-        Role roleUpdate = roleRepository.findByName(request.getRoleName())
-                .orElseThrow(()-> new AppException(ErrorCode.ROLE_NOT_EXIST));
-        userUpdate.setRole(roleUpdate);
+
+        //chưa fix
+
 
         try {
             userUpdate = userRepository.save(userUpdate);
@@ -108,13 +100,13 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserResponse> getUsers() {
         List<User> users = userRepository.findAll();
-        if(users.isEmpty()) throw new AppException(ErrorCode.USER_NOT_FOUND);
+        if (users.isEmpty()) throw new AppException(ErrorCode.USER_NOT_FOUND);
         return users.stream().map(userMapper::toUserResponse).toList();
     }
 
     @Override
     public void deleteUser(String id) {
-        if(!userRepository.existsById(id)) throw new AppException(ErrorCode.USER_NOT_EXIST);
+        if (!userRepository.existsById(id)) throw new AppException(ErrorCode.USER_NOT_EXIST);
         userRepository.deleteById(id);
     }
 }

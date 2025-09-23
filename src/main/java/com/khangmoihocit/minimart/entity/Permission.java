@@ -1,5 +1,6 @@
 package com.khangmoihocit.minimart.entity;
 
+
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -14,17 +15,14 @@ import java.util.Set;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-@Table(name = "roles")
-public class Role {
+@Table(name = "permissions")
+public class Permission {
     @Id
     String name;
 
     @Column(name = "description")
     String description;
 
-    @ManyToMany
-    @JoinTable(name = "role_permission",
-            joinColumns = @JoinColumn(name = "role_name"),
-            inverseJoinColumns = @JoinColumn(name = "permission_name"))
-    Set<Permission> permissions = new HashSet<>();
+    @ManyToMany(mappedBy = "permissions")
+    Set<Role> roles = new HashSet<>();
 }
