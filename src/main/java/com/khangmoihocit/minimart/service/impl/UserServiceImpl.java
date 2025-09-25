@@ -129,8 +129,26 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteUser(String id) {
-        if (!userRepository.existsById(id)) throw new AppException(ErrorCode.USER_NOT_EXIST);
+        if(!userRepository.existsById(id)) throw new AppException(ErrorCode.USER_NOT_EXIST);
         userRepository.deleteById(id);
+    }
+
+    @Override
+    public void activeAccount(String id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXIST));
+
+        user.setIsActive(true);
+        userRepository.save(user);
+    }
+
+    @Override
+    public void unActiveAccount(String id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXIST));
+        user.setIsActive(false);
+        userRepository.save(user);
+        revokeAllUserTokens(user);
     }
 
 }
