@@ -18,4 +18,8 @@ public interface UserService {
     List<UserResponse> getUsers();
 
     void deleteUser(String id);
+
+    void activeAccount(String id);
+
+    void unActiveAccount(String id);
 }

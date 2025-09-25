@@ -28,6 +28,7 @@ public enum ErrorCode {
     ROLE_NOT_EXIST(2009, "Role không tồn tại", HttpStatus.BAD_REQUEST),
     ROLE_ADMIN_NOT_INITIALIZED(2010, "role admin chưa được khởi tạo", HttpStatus.NOT_FOUND),
     EMAIL_INVALID(2011, "Email không đúng định dạng.", HttpStatus.BAD_REQUEST),
+    USER_NOT_ACTIVE(2012, "Tài khoản của bạn đã bị vô hiệu khóa.", HttpStatus.BAD_REQUEST),
 
 
 

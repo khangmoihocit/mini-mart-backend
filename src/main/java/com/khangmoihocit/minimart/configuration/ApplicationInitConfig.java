@@ -5,7 +5,7 @@
 //import com.khangmoihocit.minimart.entity.User;
 //import com.khangmoihocit.minimart.enums.ErrorCode;
 //import com.khangmoihocit.minimart.exception.AppException;
-//import com.khangmoihocit.minimart.repository.PermissionRepository;
+//import com.khangmoihocit.minimart.repository.PermissionService;
 //import com.khangmoihocit.minimart.repository.RoleRepository;
 //import com.khangmoihocit.minimart.repository.UserRepository;
 //import lombok.AccessLevel;
@@ -26,7 +26,7 @@
 //    PasswordEncoder passwordEncoder;
 //
 //    @Bean
-//    ApplicationRunner applicationRunner(UserRepository userRepository, RoleRepository roleRepository, PermissionRepository permissionRepository) {
+//    ApplicationRunner applicationRunner(UserRepository userRepository, RoleRepository roleRepository, PermissionService permissionRepository) {
 //        return args -> {
 //            if (userRepository.findByEmail("admin@gmail.com").isEmpty()) {
 //                if (!roleRepository.existsById("USER")) {

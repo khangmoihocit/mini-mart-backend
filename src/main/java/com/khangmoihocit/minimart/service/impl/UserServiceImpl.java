@@ -9,6 +9,7 @@ import com.khangmoihocit.minimart.enums.ErrorCode;
 import com.khangmoihocit.minimart.exception.AppException;
 import com.khangmoihocit.minimart.mapper.UserMapper;
 import com.khangmoihocit.minimart.repository.RoleRepository;
+import com.khangmoihocit.minimart.repository.TokenRepository;
 import com.khangmoihocit.minimart.repository.UserRepository;
 import com.khangmoihocit.minimart.service.AuthenticationService;
 import com.khangmoihocit.minimart.service.UserService;
@@ -32,6 +33,7 @@ import java.util.*;
 public class UserServiceImpl implements UserService {
     UserRepository userRepository;
     RoleRepository roleRepository;
+    TokenRepository tokenRepository;
     AuthenticationService authenticationService;
     UserMapper userMapper;
     PasswordEncoder passwordEncoder;
@@ -66,18 +68,39 @@ public class UserServiceImpl implements UserService {
         userMapper.updateUser(userUpdate, request);
         userUpdate.setPassword(passwordEncoder.encode(request.getPassword()));
 
+        boolean rolesChanged = false; // Biến để kiểm tra quyền có thay đổi không
         if (request.getRoles() != null) {
-            var roles = roleRepository.findAllById(request.getRoles());
-            userUpdate.setRoles(new HashSet<>(roles));
+            var newRoles = new HashSet<>(roleRepository.findAllById(request.getRoles()));
+            // Chỉ thu hồi token nếu role thực sự thay đổi
+            if (!newRoles.equals(userUpdate.getRoles())) {
+                userUpdate.setRoles(newRoles);
+                rolesChanged = true;
+            }
         }
 
         try {
             userUpdate = userRepository.save(userUpdate);
+            // Nếu quyền thay đổi, thu hồi tất cả các token cũ
+            if (rolesChanged) {
+                revokeAllUserTokens(userUpdate);
+            }
         } catch (DataIntegrityViolationException ex) {
             throw new AppException(ErrorCode.EMAIL_EXISTED);
         }
 
         return userMapper.toUserResponse(userUpdate);
+    }
+
+    private void revokeAllUserTokens(User user) {
+        //list token còn dùng được
+        var validUserTokens = tokenRepository.findAllValidTokenByUser(user.getId());
+        if (validUserTokens.isEmpty())
+            return;
+        validUserTokens.forEach(token -> {
+            token.setExpired(true);
+            token.setRevoked(true);
+        });
+        tokenRepository.saveAll(validUserTokens);
     }
 
     @PostAuthorize("returnObject.username == authentication.name")
@@ -106,8 +129,26 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteUser(String id) {
-        if (!userRepository.existsById(id)) throw new AppException(ErrorCode.USER_NOT_EXIST);
+        if(!userRepository.existsById(id)) throw new AppException(ErrorCode.USER_NOT_EXIST);
         userRepository.deleteById(id);
+    }
+
+    @Override
+    public void activeAccount(String id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXIST));
+
+        user.setIsActive(true);
+        userRepository.save(user);
+    }
+
+    @Override
+    public void unActiveAccount(String id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXIST));
+        user.setIsActive(false);
+        userRepository.save(user);
+        revokeAllUserTokens(user);
     }
 
 }
