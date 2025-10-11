@@ -26,5 +26,5 @@ public class UserUpdateInfoRequest {
     @Past(message = "Ngày sinh không được lớn hơn ngày hôm nay")
     LocalDate dateOfBirth;
 
-    List<String> roles;
+    String roleName;
 }

@@ -1,12 +1,8 @@
 package com.khangmoihocit.minimart.dto.response;
 
-import com.khangmoihocit.minimart.entity.Permission;
-import com.khangmoihocit.minimart.entity.User;
-import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.util.HashSet;
 import java.util.Set;
 
 @Data
@@ -17,5 +13,4 @@ import java.util.Set;
 public class RoleResponse {
     String name;
     String description;
-    Set<PermissionResponse> permissions;
 }

@@ -21,13 +21,4 @@ public class Role {
 
     @Column(name = "description")
     String description;
-
-    @ManyToMany(mappedBy = "roles")
-    Set<User> users = new HashSet<>();
-
-    @ManyToMany
-    @JoinTable(name = "role_permission",
-            joinColumns = @JoinColumn(name = "role_name"),
-            inverseJoinColumns = @JoinColumn(name = "permission_name"))
-    Set<Permission> permissions = new HashSet<>();
 }
