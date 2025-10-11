@@ -30,7 +30,8 @@ public class UserController {
                 .build();
     }
 
-    @PreAuthorize("hasAuthority('UPDATE_DATA')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     ApiResponse<UserResponse> updateUser(@Valid @RequestBody UserUpdateInfoRequest request,
                                          @PathVariable String id){
@@ -39,7 +40,7 @@ public class UserController {
                 .build();
     }
 
-    @PreAuthorize("hasAuthority('VIEW_DATA')")
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     ApiResponse<List<UserResponse>> getAll(){
         return ApiResponse.<List<UserResponse>>builder()
@@ -47,7 +48,7 @@ public class UserController {
                 .build();
     }
 
-    @PreAuthorize("hasAuthority('DELETE_DATA')")
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     ApiResponse<Void> deleteById(@PathVariable String id){
         userService.deleteUser(id);

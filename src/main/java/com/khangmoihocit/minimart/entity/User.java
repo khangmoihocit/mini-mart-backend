@@ -44,11 +44,9 @@ public class User {
     @Column(name = "date_of_birth")
     LocalDate dateOfBirth;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "user_role",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_name"))
-    Set<Role> roles = new HashSet<>();
+    @ManyToOne
+    @JoinColumn(name = "role_id")
+    Role role;
 
     @Column(name = "created_at")
     LocalDateTime createdAt;

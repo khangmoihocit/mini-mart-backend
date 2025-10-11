@@ -47,9 +47,7 @@ public class UserServiceImpl implements UserService {
         Role role = new Role();
         if (!roleRepository.existsById("USER")) throw new AppException(ErrorCode.ROLE_USER_NOT_EXIST);
         role = roleRepository.getById("USER");
-        Set<Role> roles = new HashSet<>();
-        roles.add(role);
-        user.setRoles(roles);
+        user.setRole(role);
 
         try {
             user = userRepository.save(user);
@@ -68,20 +66,20 @@ public class UserServiceImpl implements UserService {
         userMapper.updateUser(userUpdate, request);
         userUpdate.setPassword(passwordEncoder.encode(request.getPassword()));
 
-        boolean rolesChanged = false; // Biến để kiểm tra quyền có thay đổi không
-        if (request.getRoles() != null) {
-            var newRoles = new HashSet<>(roleRepository.findAllById(request.getRoles()));
-            // Chỉ thu hồi token nếu role thực sự thay đổi
-            if (!newRoles.equals(userUpdate.getRoles())) {
-                userUpdate.setRoles(newRoles);
-                rolesChanged = true;
+        boolean roleChanged = false;
+        if (request.getRoleName() != null) {
+            var newRoles = roleRepository.findById(request.getRoleName())
+                    .orElseThrow(() -> new AppException(ErrorCode.ROLE_NAME_NOT_FOUND));
+
+            if (!newRoles.equals(userUpdate.getRole())) {
+                userUpdate.setRole(newRoles);
+                roleChanged = true;
             }
         }
 
         try {
             userUpdate = userRepository.save(userUpdate);
-            // Nếu quyền thay đổi, thu hồi tất cả các token cũ
-            if (rolesChanged) {
+            if (roleChanged) { //thu hồi token nếu update role
                 revokeAllUserTokens(userUpdate);
             }
         } catch (DataIntegrityViolationException ex) {
@@ -92,7 +90,6 @@ public class UserServiceImpl implements UserService {
     }
 
     private void revokeAllUserTokens(User user) {
-        //list token còn dùng được
         var validUserTokens = tokenRepository.findAllValidTokenByUser(user.getId());
         if (validUserTokens.isEmpty())
             return;
