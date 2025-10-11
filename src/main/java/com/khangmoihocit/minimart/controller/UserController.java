@@ -19,7 +19,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RestController
-@RequestMapping("/api/v1/users")
+@RequestMapping("${api.prefix}/users")
 public class UserController {
     UserService userService;
 

@@ -10,16 +10,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RestController
-@RequestMapping("/api/v1/permissions")
+@RequestMapping("${api.prefix}/permissions")
 public class PermissionController {
     PermissionService permissionService;
 
@@ -30,4 +29,23 @@ public class PermissionController {
                 .result(permissionService.create(request))
                 .build();
     }
+
+    @GetMapping
+    @PreAuthorize("hasAuthority('VIEW_DATA')")
+    ApiResponse<List<PermissionResponse>> getAll() {
+        return ApiResponse.<List<PermissionResponse>>builder()
+                .result(permissionService.getAll())
+                .build();
+    }
+
+    @PutMapping
+    @PreAuthorize("hasAuthority('UPDATE_DATA')")
+    ApiResponse<PermissionResponse> update(@Valid @RequestBody PermissionRequest request) {
+        return ApiResponse.<PermissionResponse>builder()
+                .result(permissionService.update(request))
+                .build();
+    }
+
+
+
 }

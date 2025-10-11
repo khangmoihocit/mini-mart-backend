@@ -97,11 +97,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public void logout(LogoutRequest request) throws ParseException, JOSEException {
         // Tìm token trong DB
-        var tokenInDb = tokenRepository.findByToken(request.getToken())
-                .orElse(null); // Không tìm thấy thì thôi, không cần báo lỗi
+        Token tokenInDb = tokenRepository.findByToken(request.getToken())
+                .orElse(null);
 
         if (tokenInDb != null) {
-            // Đánh dấu là đã thu hồi và hết hạn
             tokenInDb.setRevoked(true);
             tokenInDb.setExpired(true);
             tokenRepository.save(tokenInDb);
@@ -110,23 +109,20 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public AuthenticationResponse refreshToken(RefreshRequest request) throws ParseException, JOSEException {
-        // 1. Xác thực token cũ và đảm bảo nó còn hợp lệ
         var signedJWT = verifyRefreshToken(request.getToken());
 
-        // 2. Thu hồi token cũ
+        //Thu hồi token cũ
         var oldTokenInDb = tokenRepository.findByToken(request.getToken())
-                .orElseThrow(() -> new AppException(ErrorCode.UNAUTHENTICATED)); // Lỗi nếu không tìm thấy
-
+                .orElseThrow(() -> new AppException(ErrorCode.UNAUTHENTICATED));
         oldTokenInDb.setRevoked(true);
         oldTokenInDb.setExpired(true);
         tokenRepository.save(oldTokenInDb);
 
-        // 3. Lấy thông tin user để tạo token mới
+        //Lấy thông tin user để tạo token mới
         var username = signedJWT.getJWTClaimsSet().getSubject();
         var user = userRepository.findByEmail(username)
                 .orElseThrow(() -> new AppException(ErrorCode.ERROR_REFRESH_TOKEN));
 
-        // 4. Tạo và lưu token mới
         String newTokenString = generateToken(user);
         saveToken(user, newTokenString);
 
@@ -160,13 +156,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         JWSVerifier verifier = new MACVerifier(SIGNER_KEY.getBytes());
         SignedJWT signedJWT = SignedJWT.parse(tokenString);
 
-        // 1. Xác thực chữ ký của token
+        // Xác thực chữ ký của token
         boolean verifiedSignature = signedJWT.verify(verifier);
         if (!verifiedSignature) {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
 
-        // 2. Kiểm tra token có trong database và còn hợp lệ không
+        //Kiểm tra token có trong database và còn hợp lệ không
         var tokenInDb = tokenRepository.findByToken(tokenString)
                 .orElseThrow(() -> new AppException(ErrorCode.UNAUTHENTICATED));
 
@@ -174,10 +170,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
 
-        // 3. Kiểm tra token đã hết hạn chưa
+        //Kiểm tra token đã hết hạn chưa
         Date expirationTime = signedJWT.getJWTClaimsSet().getExpirationTime();
-        if (expirationTime.before(new Date())) {
-            // Nếu hết hạn, cập nhật trạng thái trong DB và báo lỗi
+        if (expirationTime.before(new Date())) { //nếu hết hạn
             tokenInDb.setExpired(true);
             tokenRepository.save(tokenInDb);
             throw new AppException(ErrorCode.UNAUTHENTICATED);
@@ -190,13 +185,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         JWSVerifier verifier = new MACVerifier(SIGNER_KEY.getBytes());
         SignedJWT signedJWT = SignedJWT.parse(tokenString);
 
-        // 1. Xác thực chữ ký của token
+        //Xác thực chữ ký của token
         boolean verifiedSignature = signedJWT.verify(verifier);
         if (!verifiedSignature) {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
 
-        // 2. Kiểm tra token có trong database và chưa bị thu hồi không
+        //Kiểm tra token có trong database và chưa bị thu hồi không
         var tokenInDb = tokenRepository.findByToken(tokenString)
                 .orElseThrow(() -> new AppException(ErrorCode.UNAUTHENTICATED));
 
@@ -204,14 +199,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
 
-        // 3. Kiểm tra xem token có còn trong thời gian cho phép làm mới không
+        //Kiểm tra xem token có còn trong thời gian cho phép làm mới không
         Date issueTime = signedJWT.getJWTClaimsSet().getIssueTime();
         Instant refreshDeadline = issueTime.toInstant().plus(REFRESHABLE_DURATION, ChronoUnit.SECONDS);
 
         if (Instant.now().isAfter(refreshDeadline)) {
-            // Nếu đã quá hạn làm mới, cập nhật trạng thái trong DB và báo lỗi
             tokenInDb.setExpired(true);
-            tokenInDb.setRevoked(true); // Token quá hạn refresh nên bị thu hồi luôn
+            tokenInDb.setRevoked(true);
             tokenRepository.save(tokenInDb);
             throw new AppException(ErrorCode.REFRESH_TOKEN_EXPIRED);
         }

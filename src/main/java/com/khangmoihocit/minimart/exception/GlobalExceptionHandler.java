@@ -125,7 +125,7 @@ public class GlobalExceptionHandler {
 //        );
 //    }
 
-    //customer Thông báo từ errorcode
+    //customer Thông báo từ errorcode, @valid
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
     ResponseEntity<ApiResponse> handlingValidation(MethodArgumentNotValidException exception) {
         ErrorCode errorCode = ErrorCode.INVALID_REQUEST_DATA;

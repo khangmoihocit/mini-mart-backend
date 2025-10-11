@@ -1,6 +1,4 @@
 package com.khangmoihocit.minimart.entity;
-
-
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
