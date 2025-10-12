@@ -64,7 +64,6 @@ public class UserServiceImpl implements UserService {
         User userUpdate = userRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         userMapper.updateUser(userUpdate, request);
-        userUpdate.setPassword(passwordEncoder.encode(request.getPassword()));
 
         boolean roleChanged = false;
         if (request.getRoleName() != null) {
