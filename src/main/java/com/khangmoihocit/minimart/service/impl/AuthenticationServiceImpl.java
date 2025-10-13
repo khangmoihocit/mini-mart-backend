@@ -96,10 +96,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public void logout(LogoutRequest request) throws ParseException, JOSEException {
-        // Tìm token trong DB
         Token tokenInDb = tokenRepository.findByToken(request.getToken())
                 .orElse(null);
 
+        //logout trên 1 thiết bị
         if (tokenInDb != null) {
             tokenInDb.setRevoked(true);
             tokenInDb.setExpired(true);

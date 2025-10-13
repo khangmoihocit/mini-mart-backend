@@ -3,6 +3,9 @@ package com.khangmoihocit.minimart.service;
 import com.khangmoihocit.minimart.dto.request.UserCreationRequest;
 import com.khangmoihocit.minimart.dto.request.UserUpdateInfoRequest;
 import com.khangmoihocit.minimart.dto.response.UserResponse;
+import com.khangmoihocit.minimart.entity.User;
+import org.springframework.data.domain.Page;
+
 
 import java.util.List;
 
@@ -22,4 +25,6 @@ public interface UserService {
     void activeAccount(String id);
 
     void unActiveAccount(String id);
+
+    Page<User> search(int pageNo, int pageSize);
 }

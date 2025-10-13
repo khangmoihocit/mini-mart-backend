@@ -4,12 +4,17 @@ import com.khangmoihocit.minimart.dto.request.UserCreationRequest;
 import com.khangmoihocit.minimart.dto.request.UserUpdateInfoRequest;
 import com.khangmoihocit.minimart.dto.response.ApiResponse;
 import com.khangmoihocit.minimart.dto.response.UserResponse;
+import com.khangmoihocit.minimart.entity.User;
+import com.khangmoihocit.minimart.repository.UserRepository;
 import com.khangmoihocit.minimart.service.UserService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -63,4 +68,21 @@ public class UserController {
                 .result(userService.getMyInfo())
                 .build();
     }
+
+//    UserRepository userRepository;
+//
+//    @GetMapping("/test")
+//    ResponseEntity<List<User>> gettest() {
+//        return ResponseEntity.ok(userRepository.findUserActive());
+//    }
+
+    @GetMapping("/search")
+    ResponseEntity<?> searchUsers(@RequestParam(name="pageNo") int pageNo,
+                                  @RequestParam(name="pageSize") int pageSize) {
+        Page<User> users = userService.search(pageNo, pageSize);
+        return new ResponseEntity<>(users, HttpStatus.OK);
+    }
+
+
+
 }
