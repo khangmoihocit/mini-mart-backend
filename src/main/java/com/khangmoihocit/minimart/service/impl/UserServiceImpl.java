@@ -19,6 +19,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -64,7 +67,6 @@ public class UserServiceImpl implements UserService {
         User userUpdate = userRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         userMapper.updateUser(userUpdate, request);
-        userUpdate.setPassword(passwordEncoder.encode(request.getPassword()));
 
         boolean roleChanged = false;
         if (request.getRoleName() != null) {
@@ -146,6 +148,22 @@ public class UserServiceImpl implements UserService {
         user.setIsActive(false);
         userRepository.save(user);
         revokeAllUserTokens(user);
+    }
+
+    @Override
+    public Page<User> search(int pageNo, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNo-1, pageSize);
+        return userRepository.findAll(pageable);
+    }
+
+    @Override
+    public Page<UserResponse> searchUser(String fullName, String email, String address, int pageNo, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNo-1, pageSize);
+        Page<User> users = userRepository.search(fullName, email, address, pageable);
+        if (!users.isEmpty()) {
+            return users.map(userMapper::toUserResponse);
+        }
+        return null;
     }
 
 }
