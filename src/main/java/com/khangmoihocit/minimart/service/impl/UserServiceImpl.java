@@ -156,4 +156,14 @@ public class UserServiceImpl implements UserService {
         return userRepository.findAll(pageable);
     }
 
+    @Override
+    public Page<UserResponse> searchUser(String fullName, String email, String address, int pageNo, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNo-1, pageSize);
+        Page<User> users = userRepository.search(fullName, email, address, pageable);
+        if (!users.isEmpty()) {
+            return users.map(userMapper::toUserResponse);
+        }
+        return null;
+    }
+
 }

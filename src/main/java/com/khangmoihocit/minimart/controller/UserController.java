@@ -77,12 +77,15 @@ public class UserController {
 //    }
 
     @GetMapping("/search")
-    ResponseEntity<?> searchUsers(@RequestParam(name="pageNo") int pageNo,
-                                  @RequestParam(name="pageSize") int pageSize) {
-        Page<User> users = userService.search(pageNo, pageSize);
-        return new ResponseEntity<>(users, HttpStatus.OK);
+    ApiResponse<Page<UserResponse>> searchUsers(@RequestParam(name="pageNo") int pageNo,
+                                  @RequestParam(name="pageSize") int pageSize,
+                                  @RequestParam(name="fullName", required = false) String fullName,
+                                  @RequestParam(name="email", required = false) String email,
+                                  @RequestParam(name="address", required = false) String address) {
+        Page<UserResponse> users = userService.searchUser(fullName, email, address, pageNo, pageSize);
+        return ApiResponse.<Page<UserResponse>>builder()
+                .result(users)
+                .build();
     }
-
-
 
 }

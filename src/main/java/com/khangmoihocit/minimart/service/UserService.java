@@ -27,4 +27,6 @@ public interface UserService {
     void unActiveAccount(String id);
 
     Page<User> search(int pageNo, int pageSize);
+
+    Page<UserResponse> searchUser(String fullName, String email, String address, int pageNo, int pageSize);
 }
