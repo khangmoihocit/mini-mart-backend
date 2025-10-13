@@ -26,9 +26,6 @@ public class Token {
     @Column(name = "token_type", nullable = false, length = 50)
     String tokenType;
 
-    @Column(name = "expiration_time", nullable = false)
-    LocalDateTime expirationTime;
-
     @Column(name = "revoked")
     @Builder.Default
     Boolean revoked = false; //đã thu hồi
