@@ -2,24 +2,21 @@ package com.khangmoihocit.minimart.exception;
 
 import com.khangmoihocit.minimart.dto.response.ApiResponse;
 import com.khangmoihocit.minimart.enums.ErrorCode;
-import jakarta.validation.ConstraintViolation;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
-import org.springframework.security.oauth2.jwt.JwtException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
-import java.nio.file.AccessDeniedException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
 
 @ControllerAdvice
 @Slf4j
@@ -51,6 +48,69 @@ public class GlobalExceptionHandler {
                 .body(apiResponse);
     }
 
+    @ExceptionHandler(value = OurException.class)
+    ResponseEntity<ApiResponse> handlingOurExceotion(OurException exception) {
+        ApiResponse apiResponse = ApiResponse.builder()
+                .code(8888)
+                .message(exception.getMessage())
+                .build();
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(apiResponse);
+    }
+
+    //xử lý đăng nhập thất bại
+    @ExceptionHandler(value = BadCredentialsException.class)
+    ResponseEntity<ApiResponse> handlingBadCredentialsException(BadCredentialsException exception) {
+        ErrorCode errorCode = ErrorCode.LOGIN_FAILED;
+
+        return ResponseEntity.status(errorCode.getStatusCode()).body(
+                ApiResponse.builder()
+                        .code(errorCode.getCode())
+                        .message(errorCode.getMessage())
+                        .build()
+        );
+    }
+
+    //xử lý user bị vô hiệu hóa
+    @ExceptionHandler(value = DisabledException.class)
+    ResponseEntity<ApiResponse> handlingDisabledException(DisabledException exception) {
+        ErrorCode errorCode = ErrorCode.USER_NOT_ACTIVE;
+
+        return ResponseEntity.status(errorCode.getStatusCode()).body(
+                ApiResponse.builder()
+                        .code(errorCode.getCode())
+                        .message(errorCode.getMessage())
+                        .build()
+        );
+    }
+
+    //xử lý sai đường dẫn hoặc sai type get, post không được phép
+    @ExceptionHandler(value = HttpRequestMethodNotSupportedException.class)
+    ResponseEntity<ApiResponse> handlingMethodNotSupportedException(HttpRequestMethodNotSupportedException exception) {
+        ErrorCode errorCode = ErrorCode.METHOD_NOT_ALLOWED;
+
+        return ResponseEntity.status(errorCode.getStatusCode()).body(
+                ApiResponse.builder()
+                        .code(errorCode.getCode())
+                        .message(errorCode.getMessage())
+                        .build()
+        );
+    }
+
+    @ExceptionHandler(value = MissingServletRequestParameterException.class)
+    ResponseEntity<ApiResponse> handlingMissingServletRequestParameterException(MissingServletRequestParameterException exception) {
+        ErrorCode errorCode = ErrorCode.INVALID_REQUEST_DATA;
+
+        return ResponseEntity.status(errorCode.getStatusCode()).body(
+                ApiResponse.builder()
+                        .code(errorCode.getCode())
+                        .message("Thiếu tham số: " + exception.getParameterName())
+                        .build()
+        );
+    }
+
     //xử lý không có quyền
     @ExceptionHandler(value = AuthorizationDeniedException.class)
     ResponseEntity<ApiResponse> handlingAccessDeniedException() {
@@ -64,6 +124,7 @@ public class GlobalExceptionHandler {
         );
     }
 
+    //xử lý lỗi parse dữ liệu
     @ExceptionHandler(value = HttpMessageNotReadableException.class)
     ResponseEntity<ApiResponse> handlingDateTimeParse(HttpMessageNotReadableException exception) {
         ErrorCode errorCode = ErrorCode.UNCATEGORIZED_EXCEPTION;
@@ -76,6 +137,7 @@ public class GlobalExceptionHandler {
         );
     }
 
+    //xử lý lỗi không đúng cú pháp truy vấn
     @ExceptionHandler(value = InvalidDataAccessApiUsageException.class)
     ResponseEntity<ApiResponse> handlingInvalidData(InvalidDataAccessApiUsageException exception) {
         ErrorCode errorCode = ErrorCode.UNCATEGORIZED_EXCEPTION;
@@ -88,19 +150,7 @@ public class GlobalExceptionHandler {
         );
     }
 
-    //token invalid
-    @ExceptionHandler(value = JwtException.class)
-    ResponseEntity<ApiResponse> handlingInvalidToken(JwtException exception) {
-        ErrorCode errorCode = ErrorCode.UNCATEGORIZED_EXCEPTION;
-
-        return ResponseEntity.status(errorCode.getStatusCode()).body(
-                ApiResponse.builder()
-                        .code(errorCode.getCode())
-                        .message(exception.getMessage())
-                        .build()
-        );
-    }
-
+    //xử lý không tìm thấy đường dẫn
     @ExceptionHandler(value = NoResourceFoundException.class)
     ResponseEntity<ApiResponse> handlingState(NoResourceFoundException exception) {
         ErrorCode errorCode = ErrorCode.NOT_FOUND_PATH;
@@ -128,7 +178,7 @@ public class GlobalExceptionHandler {
     //customer Thông báo từ errorcode, @valid
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
     ResponseEntity<ApiResponse> handlingValidation(MethodArgumentNotValidException exception) {
-        ErrorCode errorCode = ErrorCode.INVALID_REQUEST_DATA;
+        ErrorCode errorCode = ErrorCode.INVALIDATE_DATA;
 
         ApiResponse<Object> apiResponse = new ApiResponse<>();
         apiResponse.setCode(errorCode.getCode());

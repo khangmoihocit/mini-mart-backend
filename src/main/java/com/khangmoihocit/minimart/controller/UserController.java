@@ -22,9 +22,9 @@ import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RestController
 @RequestMapping("${api.prefix}/users")
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserController {
     UserService userService;
 
@@ -35,7 +35,7 @@ public class UserController {
                 .build();
     }
 
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+//    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
 //    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     ApiResponse<UserResponse> updateUser(@Valid @RequestBody UserUpdateInfoRequest request,

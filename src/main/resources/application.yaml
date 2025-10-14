@@ -11,6 +11,11 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: false
+  data:
+    redis:
+          host: localhost
+          port: 6379
+          # password: your-redis-password # Nếu Redis server của bạn có mật khẩu
 
 api:
   prefix: /api/v1
@@ -18,4 +23,4 @@ api:
 jwt:
   signerKey: ${JWT_SIGNERKEY}
   valid-duration: 3600 #in second
-  refreshable-duration: 36000 #in second
+  refreshable-duration: 36000 #in second 432 000 (5day)

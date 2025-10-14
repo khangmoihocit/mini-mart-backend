@@ -1,14 +1,10 @@
 package com.khangmoihocit.minimart.dto.response;
 
-import lombok.*;
-import lombok.experimental.FieldDefaults;
+import lombok.Builder;
+import lombok.Data;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 @Builder
-@FieldDefaults(level = AccessLevel.PRIVATE)
 public class AuthenticationResponse {
-    String token;
-    boolean authenticated;
+    String accessToken;
 }

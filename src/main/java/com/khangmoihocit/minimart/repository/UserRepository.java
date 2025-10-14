@@ -13,10 +13,13 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, String> {
     Optional<User> findByEmail(String email);
 
+    @Query(value = "SELECT * FROM users u WHERE u.email = ?1 and u.is_active is true", nativeQuery = true)
+    Optional<User> findUser(String email);
+
     boolean existsByEmail(String email);
 
     @Query(value = "SELECT * FROM users u WHERE u.is_active = true", nativeQuery = true)
-    List<User> findUserActive();
+    List<User> findUsersActive();
 
     @Query(value = "select * from users u " +
                     "where (u.fullname like %:fullName% or :fullName is null) and (u.email = :email or :email is null) and (u.address like %:address% or :address is null)",

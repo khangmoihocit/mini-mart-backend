@@ -8,7 +8,8 @@ import org.springframework.http.HttpStatusCode;
 public enum ErrorCode {
     // --- Lỗi Chung & Validation (1xxx) ---
     UNCATEGORIZED_EXCEPTION(9999, "Lỗi không xác định.", HttpStatus.INTERNAL_SERVER_ERROR),
-    INVALID_REQUEST_DATA(1001, "Dữ liệu không hợp lệ.", HttpStatus.BAD_REQUEST),
+    INVALID_REQUEST_DATA(1001, "Truyền thiếu request param rồi má", HttpStatus.BAD_REQUEST),
+    INVALIDATE_DATA(1099, "Dữ liệu không hợp lệ.", HttpStatus.BAD_REQUEST),
     INVALID_DOB(1002, "Ngày sinh không hợp lệ. Bạn phải đủ {min} tuổi.", HttpStatus.BAD_REQUEST),
     INFO_NOT_BLANK(1003, "Thông tin không được để trống", HttpStatus.BAD_REQUEST),
     ID_UPDATE_NOT_BLANK(1004, "User id cần cập nhật không được trống.", HttpStatus.BAD_REQUEST),
@@ -30,7 +31,7 @@ public enum ErrorCode {
     EMAIL_INVALID(2011, "Email không đúng định dạng.", HttpStatus.BAD_REQUEST),
     USER_NOT_ACTIVE(2012, "Tài khoản của bạn đã bị vô hiệu khóa.", HttpStatus.BAD_REQUEST),
     ROLE_NAME_NOT_FOUND(2013, "không tìm thấy role", HttpStatus.NOT_FOUND),
-
+    METHOD_NOT_ALLOWED(2014, "Endpoint không được phép", HttpStatus.METHOD_NOT_ALLOWED),
 
     // --- Lỗi Phân quyền (21xx) ---
     // Lỗi này xảy ra khi người dùng cố gắng truy cập tài nguyên cần đăng nhập

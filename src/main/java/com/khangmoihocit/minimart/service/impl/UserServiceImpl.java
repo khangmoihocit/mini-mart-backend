@@ -1,5 +1,6 @@
 package com.khangmoihocit.minimart.service.impl;
 
+import com.khangmoihocit.minimart.dto.UserDetailsCustom;
 import com.khangmoihocit.minimart.dto.request.UserCreationRequest;
 import com.khangmoihocit.minimart.dto.request.UserUpdateInfoRequest;
 import com.khangmoihocit.minimart.dto.response.UserResponse;
@@ -7,6 +8,7 @@ import com.khangmoihocit.minimart.entity.Role;
 import com.khangmoihocit.minimart.entity.User;
 import com.khangmoihocit.minimart.enums.ErrorCode;
 import com.khangmoihocit.minimart.exception.AppException;
+import com.khangmoihocit.minimart.exception.OurException;
 import com.khangmoihocit.minimart.mapper.UserMapper;
 import com.khangmoihocit.minimart.repository.RoleRepository;
 import com.khangmoihocit.minimart.repository.TokenRepository;
@@ -23,6 +25,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -46,11 +50,7 @@ public class UserServiceImpl implements UserService {
         User user = userMapper.toUser(request);
 
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-
-        Role role = new Role();
-        if (!roleRepository.existsById("USER")) throw new AppException(ErrorCode.ROLE_USER_NOT_EXIST);
-        role = roleRepository.getById("USER");
-        user.setRole(role);
+        user.setRole(Role.builder().name("USER").description("This is role user").build());
 
         try {
             user = userRepository.save(user);
@@ -61,45 +61,38 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @PreAuthorize("hasRole('ADMIN') or authentication.principal.id == #id")
     public UserResponse updateUser(UserUpdateInfoRequest request, String id) {
-        if (Objects.isNull(id) || id.equals("")) throw new AppException(ErrorCode.ID_UPDATE_NOT_BLANK);
-
         User userUpdate = userRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
         userMapper.updateUser(userUpdate, request);
 
-        boolean roleChanged = false;
-        if (request.getRoleName() != null) {
-            var newRoles = roleRepository.findById(request.getRoleName())
-                    .orElseThrow(() -> new AppException(ErrorCode.ROLE_NAME_NOT_FOUND));
+        //nếu update role -> mới cần query db
+        if(!request.getRoleName().equals(userUpdate.getRole().getName())){
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            UserDetailsCustom currentUser = (UserDetailsCustom) authentication.getPrincipal();
 
-            if (!newRoles.equals(userUpdate.getRole())) {
-                userUpdate.setRole(newRoles);
-                roleChanged = true;
+            if(!hasRole(currentUser, "ADMIN") && request.getRoleName() != null){
+                throw new OurException("Bạn không có quyền thay đổi role");
             }
+            Role role = roleRepository.findById(request.getRoleName())
+                    .orElseThrow(() -> new AppException(ErrorCode.ROLE_USER_NOT_EXIST));
+            userUpdate.setRole(role);
         }
 
         try {
             userUpdate = userRepository.save(userUpdate);
-            if (roleChanged) { //thu hồi token nếu update role
-                revokeAllUserTokens(userUpdate);
-            }
+
         } catch (DataIntegrityViolationException ex) {
             throw new AppException(ErrorCode.EMAIL_EXISTED);
         }
-
         return userMapper.toUserResponse(userUpdate);
     }
 
-    private void revokeAllUserTokens(User user) {
-        var validUserTokens = tokenRepository.findAllValidTokenByUser(user.getId());
-        if (validUserTokens.isEmpty())
-            return;
-        validUserTokens.forEach(token -> {
-            token.setExpired(true);
-            token.setRevoked(true);
-        });
-        tokenRepository.saveAll(validUserTokens);
+    private boolean hasRole(UserDetailsCustom userDetails, String roleName) {
+        return userDetails.getAuthorities().stream()
+                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_" + roleName));
     }
 
     @PostAuthorize("returnObject.username == authentication.name")
@@ -147,7 +140,6 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXIST));
         user.setIsActive(false);
         userRepository.save(user);
-        revokeAllUserTokens(user);
     }
 
     @Override
