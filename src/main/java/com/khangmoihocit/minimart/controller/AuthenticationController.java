@@ -33,17 +33,21 @@ public class AuthenticationController {
 
     @PostMapping("/refresh")
     public ApiResponse<AuthenticationResponse> refreshToken(
-            @CookieValue(name = "refresh_token") String refreshToken,
-            HttpServletResponse response) throws ParseException {
+            @CookieValue(name = "refreshToken", required = false) String refreshToken) throws ParseException {
+
+        if(refreshToken == null || refreshToken.isEmpty()) {
+            throw new IllegalArgumentException("Refresh token is missing");
+        }
+
         return ApiResponse.<AuthenticationResponse>builder()
-                .result(authenticationService.refreshToken(refreshToken, response))
+                .result(authenticationService.refreshToken(refreshToken))
                 .build();
     }
 
     @PostMapping("/logout")
     public ApiResponse<Void> logout(
             @RequestHeader(name = "Authorization", required = false) String authorizationHeader,
-            @CookieValue(name = "refresh_token") String refreshToken,
+            @CookieValue(name = "refreshToken") String refreshToken,
             HttpServletResponse response) throws ParseException {
         authenticationService.logout(authorizationHeader, refreshToken, response);
         return ApiResponse.<Void>builder()

@@ -1,6 +1,7 @@
 package com.khangmoihocit.minimart.configuration;
 
 import com.khangmoihocit.minimart.dto.UserDetailsCustom;
+import com.khangmoihocit.minimart.repository.TokenRepository;
 import com.khangmoihocit.minimart.utils.JwtUtil;
 import com.khangmoihocit.minimart.service.impl.UserDetailsServiceImpl;
 import jakarta.servlet.FilterChain;
@@ -28,6 +29,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     JwtUtil jwtUtil;
     UserDetailsServiceImpl userDetailService;
+    TokenRepository tokenRepository;
 
     //trước khi vào controller sẽ vào filter này để check token, check đầu -> security config
     @Override
@@ -68,6 +70,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         } catch (Exception e) {
             log.error("Cannot set user authentication: {}", e.getMessage());
+            filterChain.doFilter(request, response);
         }
         filterChain.doFilter(request, response);
     }

@@ -21,9 +21,6 @@ public class UserUpdateInfoRequest {
     @NotBlank(message = "Họ tên không được để trống.")
     String fullName;
 
-    @Email(message = "Email không đúng định dạng.")
-    String email;
-
     @NotBlank(message = "Số điện thoại không được trống")
     String phoneNumber;
     String address;
