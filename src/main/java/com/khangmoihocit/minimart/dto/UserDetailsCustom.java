@@ -14,7 +14,7 @@ import java.util.Collections;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserDetailsCustom implements UserDetails {
-    private Long id;
+    private String id;
     private String username;
     private String password;
     private boolean isActive;

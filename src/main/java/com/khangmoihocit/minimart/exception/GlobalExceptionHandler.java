@@ -10,7 +10,9 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
@@ -71,6 +73,7 @@ public class GlobalExceptionHandler {
         );
     }
 
+    //xử lý user bị vô hiệu hóa
     @ExceptionHandler(value = DisabledException.class)
     ResponseEntity<ApiResponse> handlingDisabledException(DisabledException exception) {
         ErrorCode errorCode = ErrorCode.USER_NOT_ACTIVE;
@@ -79,6 +82,31 @@ public class GlobalExceptionHandler {
                 ApiResponse.builder()
                         .code(errorCode.getCode())
                         .message(errorCode.getMessage())
+                        .build()
+        );
+    }
+
+    //xử lý sai đường dẫn hoặc sai type get, post không được phép
+    @ExceptionHandler(value = HttpRequestMethodNotSupportedException.class)
+    ResponseEntity<ApiResponse> handlingMethodNotSupportedException(HttpRequestMethodNotSupportedException exception) {
+        ErrorCode errorCode = ErrorCode.METHOD_NOT_ALLOWED;
+
+        return ResponseEntity.status(errorCode.getStatusCode()).body(
+                ApiResponse.builder()
+                        .code(errorCode.getCode())
+                        .message(errorCode.getMessage())
+                        .build()
+        );
+    }
+
+    @ExceptionHandler(value = MissingServletRequestParameterException.class)
+    ResponseEntity<ApiResponse> handlingMissingServletRequestParameterException(MissingServletRequestParameterException exception) {
+        ErrorCode errorCode = ErrorCode.INVALID_REQUEST_DATA;
+
+        return ResponseEntity.status(errorCode.getStatusCode()).body(
+                ApiResponse.builder()
+                        .code(errorCode.getCode())
+                        .message("Thiếu tham số: " + exception.getParameterName())
                         .build()
         );
     }
@@ -150,7 +178,7 @@ public class GlobalExceptionHandler {
     //customer Thông báo từ errorcode, @valid
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
     ResponseEntity<ApiResponse> handlingValidation(MethodArgumentNotValidException exception) {
-        ErrorCode errorCode = ErrorCode.INVALID_REQUEST_DATA;
+        ErrorCode errorCode = ErrorCode.INVALIDATE_DATA;
 
         ApiResponse<Object> apiResponse = new ApiResponse<>();
         apiResponse.setCode(errorCode.getCode());

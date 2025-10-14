@@ -29,7 +29,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     JwtUtil jwtUtil;
     UserDetailsServiceImpl userDetailService;
 
-    //trước khi vào controller sẽ vào filter này để check token
+    //trước khi vào controller sẽ vào filter này để check token, check đầu -> security config
     @Override
     protected void doFilterInternal(
             @NonNull HttpServletRequest request,

@@ -23,6 +23,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         Optional<User> userOptional = userRepository.findByEmail(username);
         if(userOptional.isPresent()){
             UserDetailsCustom userDetailsCustom = UserDetailsCustom.builder()
+                    .id(userOptional.get().getId())
                     .username(userOptional.get().getEmail())
                     .password(userOptional.get().getPassword())
                     .isActive(userOptional.get().getIsActive())

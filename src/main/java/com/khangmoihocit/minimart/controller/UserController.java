@@ -35,7 +35,7 @@ public class UserController {
                 .build();
     }
 
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+//    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
 //    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     ApiResponse<UserResponse> updateUser(@Valid @RequestBody UserUpdateInfoRequest request,

@@ -35,7 +35,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     AuthenticationManager authenticationManager;
 
     @Override
-    @Transactional
     public AuthenticationResponse authentication(AuthenticationRequest request, HttpServletResponse httpResponse) {
         Authentication authentication = authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
@@ -51,7 +50,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    @Transactional
     public AuthenticationResponse refreshToken(String refreshToken, HttpServletResponse httpResponse) throws ParseException {
         return null;
     }

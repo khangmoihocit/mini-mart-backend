@@ -27,7 +27,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .code(errorCode.getCode())
-                .message("Lỗi 401, bạn không có quyền truy cập tài nguyên này, vui lòng đăng nhập.")
+                .message(errorCode.getMessage())
                 .build();
 
         //chuyen object sang string
