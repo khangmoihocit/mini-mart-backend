@@ -11,5 +11,5 @@ public interface AuthenticationService {
 
     void logout(String accessToken, String refreshToken, HttpServletResponse response) throws ParseException ;
 
-    AuthenticationResponse refreshToken(String refreshToken, HttpServletResponse response) throws ParseException;
+    AuthenticationResponse refreshToken(String refreshToken) throws ParseException;
 }

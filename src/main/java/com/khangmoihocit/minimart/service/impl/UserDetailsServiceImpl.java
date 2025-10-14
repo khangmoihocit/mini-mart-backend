@@ -22,7 +22,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Optional<User> userOptional = userRepository.findByEmail(username);
         if(userOptional.isPresent()){
-            UserDetailsCustom userDetailsCustom = UserDetailsCustom.builder()
+            UserDetailsCustom userDetailsCustom = UserDetailsCustom.builder() //user sẽ gán vào spring security
                     .id(userOptional.get().getId())
                     .username(userOptional.get().getEmail())
                     .password(userOptional.get().getPassword())

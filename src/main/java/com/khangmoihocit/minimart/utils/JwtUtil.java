@@ -14,6 +14,7 @@ import java.security.Key;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.UUID;
 
 @Component
 @Slf4j
@@ -32,9 +33,20 @@ public class JwtUtil {
 
     public String generateAccessToken(String username){
         return Jwts.builder()
-                .setSubject(username)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(Instant.now().plus(ACCESS_TOKEN_VALID_DURATION, ChronoUnit.SECONDS).toEpochMilli()))
+                .id(UUID.randomUUID().toString())
+                .subject(username)
+                .issuedAt(new Date())
+                .expiration(new Date(Instant.now().plus(ACCESS_TOKEN_VALID_DURATION, ChronoUnit.SECONDS).toEpochMilli()))
+                .signWith(SignatureAlgorithm.HS256, getSigningKey())
+                .compact();
+    }
+
+    public String generateRefreshToken(String username){
+        return Jwts.builder()
+                .id(UUID.randomUUID().toString())
+                .subject(username)
+                .issuedAt(new Date())
+                .expiration(new Date(Instant.now().plus(REFRESH_TOKEN_VALID_DURATION, ChronoUnit.SECONDS).toEpochMilli()))
                 .signWith(SignatureAlgorithm.HS256, getSigningKey())
                 .compact();
     }

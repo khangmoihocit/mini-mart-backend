@@ -99,6 +99,7 @@ public class GlobalExceptionHandler {
         );
     }
 
+    //xử lý thiếu tham số param
     @ExceptionHandler(value = MissingServletRequestParameterException.class)
     ResponseEntity<ApiResponse> handlingMissingServletRequestParameterException(MissingServletRequestParameterException exception) {
         ErrorCode errorCode = ErrorCode.INVALID_REQUEST_DATA;
@@ -107,6 +108,19 @@ public class GlobalExceptionHandler {
                 ApiResponse.builder()
                         .code(errorCode.getCode())
                         .message("Thiếu tham số: " + exception.getParameterName())
+                        .build()
+        );
+    }
+
+    //xử lý tham số truyền vào không đúng
+    @ExceptionHandler(value = IllegalArgumentException.class)
+    ResponseEntity<ApiResponse> handlingIllegalArgumentException(IllegalArgumentException exception) {
+        ErrorCode errorCode = ErrorCode.INVALID_REQUEST_DATA;
+
+        return ResponseEntity.status(errorCode.getStatusCode()).body(
+                ApiResponse.builder()
+                        .code(errorCode.getCode())
+                        .message(exception.getMessage())
                         .build()
         );
     }
