@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, String> {
+
+    @Query(value = "SELECT * FROM users u WHERE u.email = ?1 and u.is_active is true", nativeQuery = true)
     Optional<User> findByEmail(String email);
 
     boolean existsByEmail(String email);

@@ -1,6 +1,8 @@
 package com.khangmoihocit.minimart.configuration;
 
+import com.khangmoihocit.minimart.service.impl.UserDetailServiceImpl;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,13 +32,12 @@ import java.util.List;
 @EnableWebSecurity
 @EnableMethodSecurity
 @RequiredArgsConstructor
+@FieldDefaults(level = lombok.AccessLevel.PRIVATE, makeFinal = true)
 public class SecurityConfig {
 
-    private final JwtAuthenticationFilter jwtAuthFilter;
-    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
-    private final UserDetailsService userDetailsService;
+    UserDetailServiceImpl userDetailsService;
 
-    private final String[] PUBLIC_POST_ENDPOINTS = {
+    String[] PUBLIC_POST_ENDPOINTS = {
             "/api/v1/users",
             "/api/v1/auth/log-in",
             "/api/v1/auth/refresh",
@@ -60,6 +61,7 @@ public class SecurityConfig {
         return httpSecurity.build();
     }
 
+    //custom method xác thực user
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();

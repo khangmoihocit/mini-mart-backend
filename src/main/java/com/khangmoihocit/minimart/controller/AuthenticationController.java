@@ -4,7 +4,6 @@ import com.khangmoihocit.minimart.dto.request.AuthenticationRequest;
 import com.khangmoihocit.minimart.dto.response.ApiResponse;
 import com.khangmoihocit.minimart.dto.response.AuthenticationResponse;
 import com.khangmoihocit.minimart.service.AuthenticationService;
-import com.nimbusds.jose.JOSEException;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -35,7 +34,7 @@ public class AuthenticationController {
     @PostMapping("/refresh")
     public ApiResponse<AuthenticationResponse> refreshToken(
             @CookieValue(name = "refresh_token") String refreshToken,
-            HttpServletResponse response) throws ParseException, JOSEException {
+            HttpServletResponse response) throws ParseException {
         return ApiResponse.<AuthenticationResponse>builder()
                 .result(authenticationService.refreshToken(refreshToken, response))
                 .build();
@@ -45,7 +44,7 @@ public class AuthenticationController {
     public ApiResponse<Void> logout(
             @RequestHeader(name = "Authorization", required = false) String authorizationHeader,
             @CookieValue(name = "refresh_token") String refreshToken,
-            HttpServletResponse response) throws ParseException, JOSEException {
+            HttpServletResponse response) throws ParseException {
         authenticationService.logout(authorizationHeader, refreshToken, response);
         return ApiResponse.<Void>builder()
                 .message("Logged out successfully.")
