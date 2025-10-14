@@ -46,11 +46,7 @@ public class UserServiceImpl implements UserService {
         User user = userMapper.toUser(request);
 
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-
-        Role role = new Role();
-        if (!roleRepository.existsById("USER")) throw new AppException(ErrorCode.ROLE_USER_NOT_EXIST);
-        role = roleRepository.getById("USER");
-        user.setRole(role);
+        user.setRole(Role.builder().name("USER").description("This is role user").build());
 
         try {
             user = userRepository.save(user);
@@ -68,38 +64,20 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         userMapper.updateUser(userUpdate, request);
 
-        boolean roleChanged = false;
-        if (request.getRoleName() != null) {
-            var newRoles = roleRepository.findById(request.getRoleName())
-                    .orElseThrow(() -> new AppException(ErrorCode.ROLE_NAME_NOT_FOUND));
-
-            if (!newRoles.equals(userUpdate.getRole())) {
-                userUpdate.setRole(newRoles);
-                roleChanged = true;
-            }
+        //nếu update role -> mới cần query db
+        if(!request.getRoleName().equals(userUpdate.getRole().getName())){
+            Role role = roleRepository.findById(request.getRoleName())
+                    .orElseThrow(() -> new AppException(ErrorCode.ROLE_USER_NOT_EXIST));
+            userUpdate.setRole(role);
         }
 
         try {
             userUpdate = userRepository.save(userUpdate);
-            if (roleChanged) { //thu hồi token nếu update role
-                revokeAllUserTokens(userUpdate);
-            }
+
         } catch (DataIntegrityViolationException ex) {
             throw new AppException(ErrorCode.EMAIL_EXISTED);
         }
-
         return userMapper.toUserResponse(userUpdate);
-    }
-
-    private void revokeAllUserTokens(User user) {
-        var validUserTokens = tokenRepository.findAllValidTokenByUser(user.getId());
-        if (validUserTokens.isEmpty())
-            return;
-        validUserTokens.forEach(token -> {
-            token.setExpired(true);
-            token.setRevoked(true);
-        });
-        tokenRepository.saveAll(validUserTokens);
     }
 
     @PostAuthorize("returnObject.username == authentication.name")
@@ -147,7 +125,6 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXIST));
         user.setIsActive(false);
         userRepository.save(user);
-        revokeAllUserTokens(user);
     }
 
     @Override

@@ -2,25 +2,19 @@ package com.khangmoihocit.minimart.exception;
 
 import com.khangmoihocit.minimart.dto.response.ApiResponse;
 import com.khangmoihocit.minimart.enums.ErrorCode;
-import jakarta.validation.ConstraintViolation;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
-import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
-import java.nio.file.AccessDeniedException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
 
 @ControllerAdvice
 @Slf4j
@@ -52,7 +46,7 @@ public class GlobalExceptionHandler {
                 .body(apiResponse);
     }
 
-    @ExceptionHandler(value = AppException.class)
+    @ExceptionHandler(value = OurException.class)
     ResponseEntity<ApiResponse> handlingOurExceotion(OurException exception) {
         ApiResponse apiResponse = ApiResponse.builder()
                 .code(8888)
@@ -62,6 +56,31 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(apiResponse);
+    }
+
+    //xử lý đăng nhập thất bại
+    @ExceptionHandler(value = BadCredentialsException.class)
+    ResponseEntity<ApiResponse> handlingBadCredentialsException(BadCredentialsException exception) {
+        ErrorCode errorCode = ErrorCode.LOGIN_FAILED;
+
+        return ResponseEntity.status(errorCode.getStatusCode()).body(
+                ApiResponse.builder()
+                        .code(errorCode.getCode())
+                        .message(errorCode.getMessage())
+                        .build()
+        );
+    }
+
+    @ExceptionHandler(value = DisabledException.class)
+    ResponseEntity<ApiResponse> handlingDisabledException(DisabledException exception) {
+        ErrorCode errorCode = ErrorCode.USER_NOT_ACTIVE;
+
+        return ResponseEntity.status(errorCode.getStatusCode()).body(
+                ApiResponse.builder()
+                        .code(errorCode.getCode())
+                        .message(errorCode.getMessage())
+                        .build()
+        );
     }
 
     //xử lý không có quyền

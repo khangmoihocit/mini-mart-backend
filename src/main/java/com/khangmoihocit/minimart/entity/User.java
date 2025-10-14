@@ -44,7 +44,7 @@ public class User {
     @Column(name = "date_of_birth")
     LocalDate dateOfBirth;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER, targetEntity = Role.class)
     @JoinColumn(name = "role_id")
     Role role;
 

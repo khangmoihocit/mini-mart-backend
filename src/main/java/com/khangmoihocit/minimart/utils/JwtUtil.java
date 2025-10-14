@@ -3,11 +3,14 @@ package com.khangmoihocit.minimart.utils;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.nio.charset.StandardCharsets;
+import java.security.Key;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
@@ -32,13 +35,14 @@ public class JwtUtil {
                 .setSubject(username)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(Instant.now().plus(ACCESS_TOKEN_VALID_DURATION, ChronoUnit.SECONDS).toEpochMilli()))
-                .signWith(SignatureAlgorithm.ES512, SIGNER_KEY)
+                .signWith(SignatureAlgorithm.HS256, getSigningKey())
                 .compact();
     }
 
     public String getUserIdFromJWT(String token){
         Claims claims = Jwts.parser()
-                .setSigningKey(SIGNER_KEY)
+                .setSigningKey(getSigningKey())
+                .build()
                 .parseClaimsJws(token)
                 .getBody();
         return claims.getSubject();
@@ -46,7 +50,8 @@ public class JwtUtil {
 
     public String extractUsername(String token) {
         return Jwts.parser()
-                .setSigningKey(SIGNER_KEY)
+                .setSigningKey(getSigningKey())
+                .build()
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
@@ -54,7 +59,8 @@ public class JwtUtil {
 
     public boolean isTokenExpired(String token) {
         return Jwts.parser()
-                .setSigningKey(SIGNER_KEY)
+                .setSigningKey(getSigningKey())
+                .build()
                 .parseClaimsJws(token)
                 .getBody()
                 .getExpiration().before(new Date());
@@ -62,5 +68,10 @@ public class JwtUtil {
 
     public boolean validateToken(String token, String username) {
         return (username.equals(extractUsername(token)) && !isTokenExpired(token));
+    }
+
+    private Key getSigningKey() {
+        byte[] keyBytes = SIGNER_KEY.getBytes(StandardCharsets.UTF_8);
+        return Keys.hmacShaKeyFor(keyBytes);
     }
 }
