@@ -1,4 +1,4 @@
-package com.khangmoihocit.minimart.configuration;
+package com.khangmoihocit.minimart.utils;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -27,7 +27,7 @@ public class JwtUtil {
     @Value("${jwt.refreshable-duration}")
     protected long REFRESH_TOKEN_VALID_DURATION;
 
-    public String generateToken(String username){
+    public String generateAccessToken(String username){
         return Jwts.builder()
                 .setSubject(username)
                 .setIssuedAt(new Date())

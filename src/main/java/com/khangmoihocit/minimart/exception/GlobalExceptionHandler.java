@@ -6,6 +6,7 @@ import jakarta.validation.ConstraintViolation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.AuthenticationServiceException;
@@ -51,6 +52,18 @@ public class GlobalExceptionHandler {
                 .body(apiResponse);
     }
 
+    @ExceptionHandler(value = AppException.class)
+    ResponseEntity<ApiResponse> handlingOurExceotion(OurException exception) {
+        ApiResponse apiResponse = ApiResponse.builder()
+                .code(8888)
+                .message(exception.getMessage())
+                .build();
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(apiResponse);
+    }
+
     //xử lý không có quyền
     @ExceptionHandler(value = AuthorizationDeniedException.class)
     ResponseEntity<ApiResponse> handlingAccessDeniedException() {
@@ -64,6 +77,7 @@ public class GlobalExceptionHandler {
         );
     }
 
+    //xử lý lỗi parse dữ liệu
     @ExceptionHandler(value = HttpMessageNotReadableException.class)
     ResponseEntity<ApiResponse> handlingDateTimeParse(HttpMessageNotReadableException exception) {
         ErrorCode errorCode = ErrorCode.UNCATEGORIZED_EXCEPTION;
@@ -76,6 +90,7 @@ public class GlobalExceptionHandler {
         );
     }
 
+    //xử lý lỗi không đúng cú pháp truy vấn
     @ExceptionHandler(value = InvalidDataAccessApiUsageException.class)
     ResponseEntity<ApiResponse> handlingInvalidData(InvalidDataAccessApiUsageException exception) {
         ErrorCode errorCode = ErrorCode.UNCATEGORIZED_EXCEPTION;
@@ -88,19 +103,7 @@ public class GlobalExceptionHandler {
         );
     }
 
-    //token invalid
-    @ExceptionHandler(value = JwtException.class)
-    ResponseEntity<ApiResponse> handlingInvalidToken(JwtException exception) {
-        ErrorCode errorCode = ErrorCode.UNCATEGORIZED_EXCEPTION;
-
-        return ResponseEntity.status(errorCode.getStatusCode()).body(
-                ApiResponse.builder()
-                        .code(errorCode.getCode())
-                        .message(exception.getMessage())
-                        .build()
-        );
-    }
-
+    //xử lý không tìm thấy đường dẫn
     @ExceptionHandler(value = NoResourceFoundException.class)
     ResponseEntity<ApiResponse> handlingState(NoResourceFoundException exception) {
         ErrorCode errorCode = ErrorCode.NOT_FOUND_PATH;

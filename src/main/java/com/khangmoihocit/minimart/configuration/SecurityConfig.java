@@ -1,9 +1,8 @@
 package com.khangmoihocit.minimart.configuration;
 
-import com.khangmoihocit.minimart.service.impl.UserDetailServiceImpl;
+import com.khangmoihocit.minimart.service.impl.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -23,8 +22,6 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.util.List;
 
@@ -35,7 +32,9 @@ import java.util.List;
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE, makeFinal = true)
 public class SecurityConfig {
 
-    UserDetailServiceImpl userDetailsService;
+    UserDetailsServiceImpl userDetailsService;
+    JwtAuthenticationFilter jwtAuthFilter;
+    JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
     String[] PUBLIC_POST_ENDPOINTS = {
             "/api/v1/users",

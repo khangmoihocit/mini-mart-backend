@@ -1,36 +1,36 @@
 package com.khangmoihocit.minimart.service.impl;
 
-import com.khangmoihocit.minimart.entity.User; // Đảm bảo bạn import đúng entity User của mình
+import com.khangmoihocit.minimart.dto.UserDetailsCustom;
+import com.khangmoihocit.minimart.entity.User;
 import com.khangmoihocit.minimart.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-// import org.springframework.security.core.userdetails.User; // Import này có thể gây nhầm lẫn, hãy dùng tên đầy đủ
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
+import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
 public class UserDetailsServiceImpl implements UserDetailsService {
+    @Autowired
+    UserRepository userRepository;
 
-    private final UserRepository userRepository;
-
-    @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User userEntity = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
-
-        return new org.springframework.security.core.userdetails.User(
-                userEntity.getEmail(),
-                userEntity.getPassword(),
-                userEntity.getIsActive(),
-                true, // accountNonExpired: tài khoản không hết hạn
-                true, // credentialsNonExpired: chứng thực không hết hạn
-                true, // accountNonLocked: tài khoản không bị khóa
-                Collections.singleton(new SimpleGrantedAuthority("ROLE_" + userEntity.getRole().getName()))
-        );
+    @Override //trả về userdetails hoặc lớp con kế thừa userdetails (UserDetailsCustom đã tạo)
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        Optional<User> userOptional = userRepository.findByEmail(username);
+        if(userOptional.isPresent()){
+            UserDetailsCustom userDetailsCustom = UserDetailsCustom.builder()
+                    .username(userOptional.get().getEmail())
+                    .password(userOptional.get().getPassword())
+                    .isActive(userOptional.get().getIsActive())
+                    .authorities(Collections.singleton(new SimpleGrantedAuthority("ROLE_" + userOptional.get().getRole().getName())))
+                    .build();
+            return userDetailsCustom;
+        }else{
+            throw new UsernameNotFoundException("User not found with email: " + username);
+        }
     }
 }
