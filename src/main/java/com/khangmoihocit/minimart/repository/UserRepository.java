@@ -21,18 +21,19 @@ public interface UserRepository extends JpaRepository<User, String> {
     @Query(value = "SELECT * FROM users u WHERE u.is_active = true", nativeQuery = true)
     List<User> findUsersActive();
 
-    @Query(value = "select * from users u " +
-                    "where (u.fullname like %:keyword% or :keyword is null) " +
-            "and (u.email like %:keyword% or :keyword is null) " +
-            "and (u.address like %:keyword% or :keyword is null) " +
-            "and (u.phone_number like %:keyword% or :keyword is null)",
-            countQuery = "select count(*) from users u " +
-                    "where (u.fullname like %:keyword% or :keyword is null) " +
-                    "and (u.email like %:keyword% or :keyword is null) " +
-                    "and (u.address like %:keyword% or :keyword is null) " +
-                    "and (u.phone_number like %:keyword% or :keyword is null)",
+    @Query(value = "SELECT * FROM users u WHERE " +
+            "(:keyword IS NULL OR " +
+            "u.fullname LIKE %:keyword% OR " +
+            "u.email LIKE %:keyword% OR " +
+            "u.address LIKE %:keyword% OR " +
+            "u.phone_number LIKE %:keyword%)",
+            countQuery = "SELECT count(*) FROM users u WHERE " +
+                    "(:keyword IS NULL OR " +
+                    "u.fullname LIKE %:keyword% OR " +
+                    "u.email LIKE %:keyword% OR " +
+                    "u.address LIKE %:keyword% OR " +
+                    "u.phone_number LIKE %:keyword%)",
             nativeQuery = true)
-    Page<User> search(@Param("keyword") String fullName, Pageable pageable);
-
+    Page<User> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);
 
 }
