@@ -28,5 +28,5 @@ public interface UserService {
 
     Page<User> search(int pageNo, int pageSize);
 
-    Page<UserResponse> searchUser(String fullName, String email, String address, int pageNo, int pageSize);
+    Page<UserResponse> searchUser(int pageNo, int pageSize, String keyword);
 }

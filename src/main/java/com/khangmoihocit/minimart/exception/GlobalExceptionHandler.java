@@ -2,11 +2,13 @@ package com.khangmoihocit.minimart.exception;
 
 import com.khangmoihocit.minimart.dto.response.ApiResponse;
 import com.khangmoihocit.minimart.enums.ErrorCode;
+import io.jsonwebtoken.ExpiredJwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
@@ -121,6 +123,33 @@ public class GlobalExceptionHandler {
                 ApiResponse.builder()
                         .code(errorCode.getCode())
                         .message(exception.getMessage())
+                        .build()
+        );
+    }
+
+    //xử lý token hết hạn
+    @ExceptionHandler(value = ExpiredJwtException.class)
+    ResponseEntity<ApiResponse> handlingExpriedToken(ExpiredJwtException exception){
+        ErrorCode errorCode = ErrorCode.INVALID_TOKEN;
+
+        return ResponseEntity.status(errorCode.getStatusCode()).body(
+                ApiResponse.builder()
+                        .code(errorCode.getCode())
+                        .message("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại")
+                        .build()
+        );
+    }
+
+    //xử lý không xác thực, chưa đăng nhập
+    @ExceptionHandler(value = AuthenticationCredentialsNotFoundException.class)
+    ResponseEntity<ApiResponse> handlingAuthenticationCredentialsNotFoundException(AuthenticationCredentialsNotFoundException exception)
+    {
+        ErrorCode errorCode = ErrorCode.UNAUTHENTICATED;
+
+        return ResponseEntity.status(errorCode.getStatusCode()).body(
+                ApiResponse.builder()
+                        .code(errorCode.getCode())
+                        .message(errorCode.getMessage())
                         .build()
         );
     }

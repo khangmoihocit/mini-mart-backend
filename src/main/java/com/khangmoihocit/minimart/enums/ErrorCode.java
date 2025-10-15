@@ -32,6 +32,7 @@ public enum ErrorCode {
     USER_NOT_ACTIVE(2012, "Tài khoản của bạn đã bị vô hiệu khóa.", HttpStatus.BAD_REQUEST),
     ROLE_NAME_NOT_FOUND(2013, "không tìm thấy role", HttpStatus.NOT_FOUND),
     METHOD_NOT_ALLOWED(2014, "Endpoint không được phép", HttpStatus.METHOD_NOT_ALLOWED),
+    INVALID_TOKEN(2015, "Token không hợp lệ", HttpStatus.BAD_REQUEST),
 
     // --- Lỗi Phân quyền (21xx) ---
     // Lỗi này xảy ra khi người dùng cố gắng truy cập tài nguyên cần đăng nhập
