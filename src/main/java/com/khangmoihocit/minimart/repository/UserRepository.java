@@ -22,14 +22,17 @@ public interface UserRepository extends JpaRepository<User, String> {
     List<User> findUsersActive();
 
     @Query(value = "select * from users u " +
-                    "where (u.fullname like %:fullName% or :fullName is null) and (u.email = :email or :email is null) and (u.address like %:address% or :address is null)",
+                    "where (u.fullname like %:keyword% or :keyword is null) " +
+            "and (u.email like %:keyword% or :keyword is null) " +
+            "and (u.address like %:keyword% or :keyword is null) " +
+            "and (u.phone_number like %:keyword% or :keyword is null)",
             countQuery = "select count(*) from users u " +
-                    "where (u.fullname like %:fullName% or :fullName is null) and (u.email = :email or :email is null) and (u.address like %:address% or :address is null)",
+                    "where (u.fullname like %:keyword% or :keyword is null) " +
+                    "and (u.email like %:keyword% or :keyword is null) " +
+                    "and (u.address like %:keyword% or :keyword is null) " +
+                    "and (u.phone_number like %:keyword% or :keyword is null)",
             nativeQuery = true)
-    Page<User> search(@Param("fullName") String fullName,
-                      @Param("email") String email,
-                      @Param("address") String address,
-                      Pageable pageable);
+    Page<User> search(@Param("keyword") String fullName, Pageable pageable);
 
 
 }

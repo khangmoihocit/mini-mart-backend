@@ -155,17 +155,17 @@ public class GlobalExceptionHandler {
     }
 
     //xử lý không có quyền
-//    @ExceptionHandler(value = AuthorizationDeniedException.class)
-//    ResponseEntity<ApiResponse> handlingAccessDeniedException() {
-//        ErrorCode errorCode = ErrorCode.ACCESS_DENIED;
-//
-//        return ResponseEntity.status(errorCode.getStatusCode()).body(
-//                ApiResponse.builder()
-//                        .code(errorCode.getCode())
-//                        .message(errorCode.getMessage())
-//                        .build()
-//        );
-//    }
+    @ExceptionHandler(value = AuthorizationDeniedException.class)
+    ResponseEntity<ApiResponse> handlingAccessDeniedException() {
+        ErrorCode errorCode = ErrorCode.ACCESS_DENIED;
+
+        return ResponseEntity.status(errorCode.getStatusCode()).body(
+                ApiResponse.builder()
+                        .code(errorCode.getCode())
+                        .message(errorCode.getMessage())
+                        .build()
+        );
+    }
 
     //xử lý lỗi parse dữ liệu
     @ExceptionHandler(value = HttpMessageNotReadableException.class)

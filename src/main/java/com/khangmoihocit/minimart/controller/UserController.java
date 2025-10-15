@@ -79,10 +79,8 @@ public class UserController {
     @GetMapping("/search")
     ApiResponse<Page<UserResponse>> searchUsers(@RequestParam(name="pageNo") int pageNo,
                                   @RequestParam(name="pageSize") int pageSize,
-                                  @RequestParam(name="fullName", required = false) String fullName,
-                                  @RequestParam(name="email", required = false) String email,
-                                  @RequestParam(name="address", required = false) String address) {
-        Page<UserResponse> users = userService.searchUser(fullName, email, address, pageNo, pageSize);
+                                  @RequestParam(name = "keyword", required = false) String keyword) {
+        Page<UserResponse> users = userService.searchUser(pageNo, pageSize, keyword);
         return ApiResponse.<Page<UserResponse>>builder()
                 .result(users)
                 .build();
