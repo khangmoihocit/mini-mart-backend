@@ -22,5 +22,5 @@ api:
 
 jwt:
   signerKey: ${JWT_SIGNERKEY}
-  valid-duration: 3600 #in second
-  refreshable-duration: 36000 #in second 432 000 (5day)
+  valid-duration: 7200 #in second (2 hour)
+  refreshable-duration: 432000 #in second 432 000 (5day)

@@ -4,6 +4,7 @@ import com.khangmoihocit.minimart.dto.UserDetailsCustom;
 import com.khangmoihocit.minimart.repository.TokenRepository;
 import com.khangmoihocit.minimart.utils.JwtUtil;
 import com.khangmoihocit.minimart.service.impl.UserDetailsServiceImpl;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,6 +15,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
@@ -24,12 +26,13 @@ import java.io.IOException;
 @Component
 @RequiredArgsConstructor
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE, makeFinal = true)
-@Slf4j
+@Slf4j(topic = "JWT AUTHENTICATION  FILTER")
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     JwtUtil jwtUtil;
     UserDetailsServiceImpl userDetailService;
     TokenRepository tokenRepository;
+    JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
     //trước khi vào controller sẽ vào filter này để check token, check đầu -> security config
     @Override
@@ -68,10 +71,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
             filterChain.doFilter(request, response);
             return;
-        } catch (Exception e) {
-            log.error("Cannot set user authentication: {}", e.getMessage());
-            filterChain.doFilter(request, response);
+
         }
-        filterChain.doFilter(request, response);
+        catch(ExpiredJwtException e){
+            log.warn("JWT Token has expired: {}", e.getMessage());
+            // Khi token hết hạn, ủy quyền cho EntryPoint để trả về lỗi 401
+            jwtAuthenticationEntryPoint.commence(request, response, new AuthenticationException("JWT Token has expired") {});
+        }
+        catch (Exception e) {
+            log.error("JWT Token error: {}", e.getMessage());
+            // Các lỗi JWT khác cũng trả về 401
+            jwtAuthenticationEntryPoint.commence(request, response, new AuthenticationException("JWT Token error") {});
+        }
+//        filterChain.doFilter(request, response);
     }
 }
