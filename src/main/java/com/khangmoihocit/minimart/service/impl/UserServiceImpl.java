@@ -40,8 +40,6 @@ import java.util.*;
 public class UserServiceImpl implements UserService {
     UserRepository userRepository;
     RoleRepository roleRepository;
-    TokenRepository tokenRepository;
-    AuthenticationService authenticationService;
     UserMapper userMapper;
     PasswordEncoder passwordEncoder;
 

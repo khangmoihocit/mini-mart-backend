@@ -69,13 +69,6 @@ public class UserController {
                 .build();
     }
 
-//    UserRepository userRepository;
-//
-//    @GetMapping("/test")
-//    ResponseEntity<List<User>> gettest() {
-//        return ResponseEntity.ok(userRepository.findUserActive());
-//    }
-
     @GetMapping("/search")
     ApiResponse<Page<UserResponse>> searchUsers(@RequestParam(name="pageNo", defaultValue = "1") int pageNo,
                                   @RequestParam(name="pageSize", defaultValue = "5") int pageSize,
