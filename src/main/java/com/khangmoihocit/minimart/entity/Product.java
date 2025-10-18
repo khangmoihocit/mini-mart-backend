@@ -31,9 +31,6 @@ public class Product {
     @Column(name = "sale_price", precision = 12, scale = 2)
     BigDecimal salePrice;
 
-    @Column(name = "thumbnail")
-    String thumbnail;
-
     @Column(name = "description", columnDefinition = "LONGTEXT")
     String description;
 
