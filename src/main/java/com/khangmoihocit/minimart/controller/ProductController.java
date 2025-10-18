@@ -3,15 +3,15 @@ package com.khangmoihocit.minimart.controller;
 import com.khangmoihocit.minimart.dto.request.ProductRequest;
 import com.khangmoihocit.minimart.dto.response.ApiResponse;
 import com.khangmoihocit.minimart.dto.response.ProductResponse;
+import com.khangmoihocit.minimart.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -19,10 +19,15 @@ import org.springframework.web.bind.annotation.RestController;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequestMapping("${api.prefix}/products")
 public class ProductController {
+    ProductService productService;
 
-    @PostMapping
-    ApiResponse<ProductResponse> createProduct(@RequestBody @Valid ProductRequest productRequest) {
-
-        return ApiResponse.<ProductResponse>builder().build();
+    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PreAuthorize("hasRole('ADMIN')")
+    public ApiResponse<ProductResponse> createProduct(@Valid @ModelAttribute ProductRequest request) {
+        ProductResponse result = productService.createProductWithImages(request);
+        return ApiResponse.<ProductResponse>builder()
+                .result(result)
+                .message("Tạo sản phẩm thành công!")
+                .build();
     }
 }
