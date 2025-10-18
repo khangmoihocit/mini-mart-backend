@@ -19,6 +19,8 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -60,6 +62,15 @@ public class ProductServiceImpl implements ProductService {
             for (MultipartFile file : request.getImages()) {
                 if(file.isEmpty()){
                     continue; // Bỏ qua file rỗng
+                }
+
+                if(file.getSize()>  10 * 1024 * 1024) { // kích thước lớn hơn 10MB
+                    throw new AppException(ErrorCode.FILE_SIZE_EXCEEDED);
+                }
+
+                String contentType = file.getContentType();
+                if (contentType == null || !contentType.startsWith("image/")) {
+                    throw new AppException(ErrorCode.INVALID_FILE_TYPE);
                 }
 
                 ProductImage productImage = saveImageForProduct(file, product);

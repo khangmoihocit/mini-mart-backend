@@ -17,6 +17,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 
@@ -110,6 +111,19 @@ public class GlobalExceptionHandler {
                 ApiResponse.builder()
                         .code(errorCode.getCode())
                         .message("Thiếu tham số: " + exception.getParameterName())
+                        .build()
+        );
+    }
+
+    //xử lý vượt quá kích thước file tải lên
+    @ExceptionHandler(value = MaxUploadSizeExceededException.class)
+    ResponseEntity<ApiResponse> handlingMaxUploadSizeExceededException(MaxUploadSizeExceededException exception) {
+        ErrorCode errorCode = ErrorCode.FILE_SIZE_EXCEEDED;
+
+        return ResponseEntity.status(errorCode.getStatusCode()).body(
+                ApiResponse.builder()
+                        .code(errorCode.getCode())
+                        .message(errorCode.getMessage())
                         .build()
         );
     }

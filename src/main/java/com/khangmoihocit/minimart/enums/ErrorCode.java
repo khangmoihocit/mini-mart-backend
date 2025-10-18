@@ -15,7 +15,8 @@ public enum ErrorCode {
     ID_UPDATE_NOT_BLANK(1004, "User id cần cập nhật không được trống.", HttpStatus.BAD_REQUEST),
     INVALID_DATE_FORMAT(1005, "Lỗi dịnh dạng ngày (yyyy-mm-dd)", HttpStatus.BAD_REQUEST),
     NOT_FOUND_PATH(1006, "Lỗi đường dẫn", HttpStatus.NOT_FOUND),
-
+    FILE_SIZE_EXCEEDED(1007, "Kích thước file vượt quá giới hạn cho phép.", HttpStatus.BAD_REQUEST),
+    INVALID_FILE_TYPE(1008, "Loại file không hợp lệ. Vui lòng tải lên file hình ảnh.", HttpStatus.BAD_REQUEST),
 
     // --- Lỗi Người dùng & Xác thực (2xxx) ---
     USER_EXISTED(2001, "Tên đăng nhập đã tồn tại.", HttpStatus.BAD_REQUEST),
@@ -35,13 +36,10 @@ public enum ErrorCode {
     INVALID_TOKEN(2015, "Token không hợp lệ", HttpStatus.BAD_REQUEST),
 
     // --- Lỗi Phân quyền (21xx) ---
-    // Lỗi này xảy ra khi người dùng cố gắng truy cập tài nguyên cần đăng nhập
-    // mà không cung cấp token hợp lệ.
     // HTTP Status là 401.
     UNAUTHENTICATED(2101, "Vui lòng đăng nhập", HttpStatus.UNAUTHORIZED), // 401
 
-    // Lỗi này xảy ra khi người dùng đã đăng nhập (đã xác thực), nhưng không có đủ quyền (role) để truy cập tài nguyên.
-    // Ví dụ: USER cố gắng truy cập API của ADMIN.
+
     // HTTP Status là 403.
     ACCESS_DENIED(2102, "Bạn không có quyền truy cập tài nguyên này.", HttpStatus.FORBIDDEN), // 403,
     ERROR_REFRESH_TOKEN(2103, "Lỗi ở refresh token", HttpStatus.BAD_REQUEST),// 403
