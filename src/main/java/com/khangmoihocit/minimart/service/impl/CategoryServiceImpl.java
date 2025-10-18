@@ -3,6 +3,8 @@ package com.khangmoihocit.minimart.service.impl;
 import com.khangmoihocit.minimart.dto.request.CategoryRequest;
 import com.khangmoihocit.minimart.dto.response.CategoryResponse;
 import com.khangmoihocit.minimart.entity.Category;
+import com.khangmoihocit.minimart.enums.ErrorCode;
+import com.khangmoihocit.minimart.exception.AppException;
 import com.khangmoihocit.minimart.exception.OurException;
 import com.khangmoihocit.minimart.repository.CategoryRepository;
 import com.khangmoihocit.minimart.service.CategoryService;
@@ -45,21 +47,21 @@ public class CategoryServiceImpl implements CategoryService {
                     .name(category.getName())
                     .build();
         } else {
-            throw new OurException("CategoryController not found");
+            throw new AppException(ErrorCode.CATEGORY_NOT_FOUND);
         }
     }
 
     @Override
     public void delete(String id) {
         Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new OurException("CategoryController not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
         categoryRepository.delete(category);
     }
 
     @Override
     public CategoryResponse findById(String id) {
         Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new OurException("CategoryController not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
 
         return CategoryResponse.builder()
                 .id(category.getId())

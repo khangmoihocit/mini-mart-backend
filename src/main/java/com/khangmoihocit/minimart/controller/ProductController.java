@@ -13,6 +13,8 @@ import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Slf4j
 @RequiredArgsConstructor
 @RestController
@@ -23,11 +25,29 @@ public class ProductController {
 
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @PreAuthorize("hasRole('ADMIN')")
-    public ApiResponse<ProductResponse> createProduct(@Valid @ModelAttribute ProductRequest request) {
+    ApiResponse<ProductResponse> createProduct(@Valid @ModelAttribute ProductRequest request) {
         ProductResponse result = productService.createProductWithImages(request);
         return ApiResponse.<ProductResponse>builder()
                 .result(result)
                 .message("Tạo sản phẩm thành công!")
+                .build();
+    }
+
+    @GetMapping
+    ApiResponse<List<ProductResponse>> getAllProducts() {
+        List<ProductResponse> result = productService.findAll();
+        return ApiResponse.<List<ProductResponse>>builder()
+                .result(result)
+                .build();
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    ApiResponse<ProductResponse> updateProduct(@PathVariable String id, @Valid @ModelAttribute ProductRequest request) {
+        ProductResponse result = productService.update(id, request);
+        return ApiResponse.<ProductResponse>builder()
+                .result(result)
+                .message("Cập nhật sản phẩm thành công!")
                 .build();
     }
 }

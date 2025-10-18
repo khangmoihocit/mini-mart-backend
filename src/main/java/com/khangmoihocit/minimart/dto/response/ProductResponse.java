@@ -23,5 +23,5 @@ public class ProductResponse {
     LocalDateTime updatedAt;
 
     CategoryResponse category;
-    List<String> images;
+    List<ProductImageResponse> images;
 }
