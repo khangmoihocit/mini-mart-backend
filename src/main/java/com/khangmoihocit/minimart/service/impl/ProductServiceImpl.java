@@ -53,38 +53,92 @@ public class ProductServiceImpl implements ProductService {
 
         Product product = productMapper.toProduct(request);
         product.setCategory(category);
-
         product = productRepository.save(product);
 
+        List<ProductImage> savedImages = processAndSaveImages(request.getImages(), product);
+
         ProductResponse productResponse = productMapper.toProductResponse(product);
-        if (request.getImages() != null && !request.getImages().isEmpty()) {
-            List<ProductImage> productImages = new ArrayList<>();
-            for (MultipartFile file : request.getImages()) {
-                if(file.isEmpty()){
-                    continue; // Bỏ qua file rỗng
-                }
-
-                if(file.getSize()>  10 * 1024 * 1024) { // kích thước lớn hơn 10MB
-                    throw new AppException(ErrorCode.FILE_SIZE_EXCEEDED);
-                }
-
-                String contentType = file.getContentType();
-                if (contentType == null || !contentType.startsWith("image/")) {
-                    throw new AppException(ErrorCode.INVALID_FILE_TYPE);
-                }
-
-                ProductImage productImage = saveImageForProduct(file, product);
-                productImages.add(productImage);
-            }
-            productImageRepository.saveAll(productImages);
-            List<ProductImageResponse> imageUrls = productImages.stream()
-                    .map(productImageMapper::toProductImageResponse).toList();
-            productResponse.setImages(imageUrls);
-        }
+        List<ProductImageResponse> imageResponses = savedImages.stream()
+                .map(productImageMapper::toProductImageResponse)
+                .toList();
+        productResponse.setImages(imageResponses);
 
         return productResponse;
     }
 
+
+    @Override
+    @Transactional
+    public ProductResponse update(String id, ProductRequest productRequest) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
+
+        productMapper.updateProduct(productRequest, product);
+
+        if (!productRequest.getCategoryId().equals(product.getCategory().getId())) {
+            Category newCategory = categoryRepository.findById(productRequest.getCategoryId())
+                    .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
+            product.setCategory(newCategory);
+        }
+        return productMapper.toProductResponse(product);
+    }
+
+
+    @Override
+    @Transactional
+    public ProductResponse updateProductImages(String id, List<MultipartFile> files) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
+
+        List<ProductImage> existingImages = productImageRepository.findByProductId(id);
+        existingImages.forEach(image -> deleteImageFile(image.getImageUrl()));
+        productImageRepository.deleteAll(existingImages);
+
+        List<ProductImage> savedImages = processAndSaveImages(files, product);
+
+        ProductResponse productResponse = productMapper.toProductResponse(product);
+        List<ProductImageResponse> imageResponses = savedImages.stream()
+                .map(productImageMapper::toProductImageResponse)
+                .toList();
+        productResponse.setImages(imageResponses);
+
+        return productResponse;
+    }
+
+    private void validateImageFile(MultipartFile file) {
+        if (file == null || file.isEmpty()) {
+            return;
+        }
+
+        if (file.getSize() > 10 * 1024 * 1024) {
+            throw new AppException(ErrorCode.FILE_SIZE_EXCEEDED);
+        }
+
+        String contentType = file.getContentType();
+        if (contentType == null || !contentType.startsWith("image/")) {
+            throw new AppException(ErrorCode.INVALID_FILE_TYPE);
+        }
+    }
+
+    //lưu nhiều ảnh
+    private List<ProductImage> processAndSaveImages(List<MultipartFile> files, Product product) {
+        if (files == null || files.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        List<ProductImage> productImages = new ArrayList<>();
+        for (MultipartFile file : files) {
+            validateImageFile(file);
+            if (!file.isEmpty()) {
+                ProductImage productImage = saveImageForProduct(file, product);
+                productImages.add(productImage);
+            }
+        }
+
+        return productImageRepository.saveAll(productImages);
+    }
+
+    //lưu ảnh vào thư mục và db
     private ProductImage saveImageForProduct(MultipartFile file, Product product) {
         try {
             // Tạo thư mục 'uploads' nếu chưa có
@@ -124,20 +178,6 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
-    @Override //2 query, 3 query cho update category - đã tối ưu
-    public ProductResponse update(String id, ProductRequest productRequest) {
-        Product product = productRepository.findById(id).orElseThrow(()-> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
-        productMapper.updateProduct(productRequest, product);
-
-        if(!productRequest.getCategoryId().equals(product.getCategory().getId())){
-            Category category = categoryRepository.findById(productRequest.getCategoryId())
-                    .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
-            product.setCategory(category);
-        }
-
-        return productMapper.toProductResponse(productRepository.save(product));
-    }
-
     @Override
     public void delete(String id) {
         Product product = productRepository.findById(id)
@@ -169,6 +209,7 @@ public class ProductServiceImpl implements ProductService {
 
             imagesByProductId.get(productId).add(image);
         }
+
         return products.stream().map(product -> {
             ProductResponse response = productMapper.toProductResponse(product);
 

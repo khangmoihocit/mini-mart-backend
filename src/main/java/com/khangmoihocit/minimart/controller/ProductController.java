@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -48,6 +49,16 @@ public class ProductController {
         return ApiResponse.<ProductResponse>builder()
                 .result(result)
                 .message("Cập nhật sản phẩm thành công!")
+                .build();
+    }
+
+    @PostMapping("/update-images/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    ApiResponse<ProductResponse> updateProductImages(@PathVariable String id, @ModelAttribute List<MultipartFile> files) {
+        ProductResponse result = productService.updateProductImages(id, files);
+        return ApiResponse.<ProductResponse>builder()
+                .result(result)
+                .message("Cập nhật hình ảnh sản phẩm thành công!")
                 .build();
     }
 }
