@@ -12,6 +12,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,7 +29,11 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = Category.builder()
                 .name(categoryRequest.getName())
                 .build();
-        category = categoryRepository.save(category);
+        try{
+            category = categoryRepository.save(category);
+        } catch (DataIntegrityViolationException e){
+           throw new OurException("Danh mục đã tồn tại!");
+        }
 
         return CategoryResponse.builder()
                 .id(category.getId())

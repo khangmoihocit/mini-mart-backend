@@ -70,6 +70,7 @@ public class UserController {
     }
 
     @GetMapping("/search")
+    @PreAuthorize("hasRole('ADMIN')")
     ApiResponse<Page<UserResponse>> searchUsers(@RequestParam(name="pageNo", defaultValue = "1") int pageNo,
                                   @RequestParam(name="pageSize", defaultValue = "5") int pageSize,
                                   @RequestParam(name = "keyword", required = false) String keyword) {
