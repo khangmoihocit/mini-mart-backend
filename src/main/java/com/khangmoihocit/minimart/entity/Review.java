@@ -23,12 +23,10 @@ public class Review {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
     User user;
 
     @ManyToOne
     @JoinColumn(name = "product_id", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
     Product product;
 
     @Column(name = "rating", nullable = false)
