@@ -40,7 +40,6 @@ public class Product {
 
     @ManyToOne
     @JoinColumn(name = "category_id")
-    @OnDelete(action = OnDeleteAction.CASCADE)
     Category category;
 
     @Column(name = "created_at")

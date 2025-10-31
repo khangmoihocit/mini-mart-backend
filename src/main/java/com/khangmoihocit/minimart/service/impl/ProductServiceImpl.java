@@ -90,9 +90,11 @@ public class ProductServiceImpl implements ProductService {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
+        //lấy tất cả ảnh sản phẩm và xóa file ảnh trong thư mục
         List<ProductImage> existingImages = productImageRepository.findByProductId(id);
         existingImages.forEach(image -> deleteImageFile(image.getImageUrl()));
         productImageRepository.deleteAll(existingImages);
+
 
         List<ProductImage> savedImages = processAndSaveImages(files, product);
 
@@ -120,7 +122,7 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
-    //lưu nhiều ảnh
+    //lưu nhiều ảnh vào thư mục và db
     private List<ProductImage> processAndSaveImages(List<MultipartFile> files, Product product) {
         if (files == null || files.isEmpty()) {
             return new ArrayList<>();
@@ -138,7 +140,7 @@ public class ProductServiceImpl implements ProductService {
         return productImageRepository.saveAll(productImages);
     }
 
-    //lưu ảnh vào thư mục và db
+    //lưu ảnh vào thư mục và trả về entity để lưu vào db
     private ProductImage saveImageForProduct(MultipartFile file, Product product) {
         try {
             // Tạo thư mục 'uploads' nếu chưa có

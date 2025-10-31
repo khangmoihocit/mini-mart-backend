@@ -23,12 +23,10 @@ public class OrderDetail {
 
     @ManyToOne
     @JoinColumn(name = "order_id", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
     Order order;
 
     @ManyToOne
     @JoinColumn(name = "product_id")
-    @OnDelete(action = OnDeleteAction.CASCADE)
     Product product;
 
     @Column(name = "price", nullable = false, precision = 12, scale = 2)

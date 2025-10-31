@@ -21,7 +21,6 @@ public class CouponCondition {
 
     @ManyToOne
     @JoinColumn(name = "coupon_id", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
     Coupon coupon;
 
     @Column(name = "attribute", nullable = false)
