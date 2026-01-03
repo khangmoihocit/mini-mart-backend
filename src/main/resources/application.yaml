@@ -4,23 +4,17 @@ server:
 spring:
   datasource:
 #    url: ${DBMS_CONNECTION:jdbc:mysql://localhost:3306/mini_mart_db_1}
-    url: "jdbc:mysql://localhost:3306/mini_mart_db_1"
-    username: ${DBMS_USERNAME}
-    password: ${DBMS_PASSWORD}
+    url: "jdbc:mysql://localhost:3306/shopclothing"
+    username: root
+    password: root
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: false
-  data:
-    redis:
-          host: localhost
-          port: 6379
-          # password: your-redis-password # Nếu Redis server của bạn có mật khẩu
-
 api:
   prefix: /api/v1
 
 jwt:
-  signerKey: ${JWT_SIGNERKEY}
+  signerKey: QcACku/+MCwysAVv/s7cSW9J1ZdO0HkSBZrXUfYRa21I+B91ka1ZqmhBcCX8zZdg
   valid-duration: 7200 #in second (2 hour)
   refreshable-duration: 432000 #in second 432 000 (5day)

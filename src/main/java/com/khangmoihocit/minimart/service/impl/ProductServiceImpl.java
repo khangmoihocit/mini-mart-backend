@@ -6,6 +6,7 @@ import com.khangmoihocit.minimart.dto.response.ProductResponse;
 import com.khangmoihocit.minimart.entity.Category;
 import com.khangmoihocit.minimart.entity.Product;
 import com.khangmoihocit.minimart.entity.ProductImage;
+import com.khangmoihocit.minimart.entity.User;
 import com.khangmoihocit.minimart.enums.ErrorCode;
 import com.khangmoihocit.minimart.exception.AppException;
 import com.khangmoihocit.minimart.exception.OurException;
@@ -19,6 +20,9 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -105,6 +109,44 @@ public class ProductServiceImpl implements ProductService {
         productResponse.setImages(imageResponses);
 
         return productResponse;
+    }
+
+    @Override
+    public Page<ProductResponse> searchProduct(int pageNo, int pageSize, String keyword) {
+        Pageable pageable = PageRequest.of(pageNo-1, pageSize);
+        Page<Product> products = productRepository.searchByKeyword(keyword, pageable);
+
+        List<String> productIds = products.getContent().stream().map(Product::getId).toList();
+        List<ProductImage> productImages = productImageRepository.findByProductIdIn(productIds); //query 2
+
+        // Nhóm hình ảnh theo productId
+        Map<String, List<ProductImage>> imagesByProductId = new HashMap<>();
+        for (ProductImage image : productImages){
+            String productId = image.getProduct().getId();
+
+            if (!imagesByProductId.containsKey(productId)) {
+                imagesByProductId.put(productId, new ArrayList<>());
+            }
+
+            imagesByProductId.get(productId).add(image);
+        }
+
+
+        if (!products.isEmpty()) {
+            return products.map(product -> {
+                ProductResponse response = productMapper.toProductResponse(product);
+
+                List<ProductImage> images = imagesByProductId.getOrDefault(product.getId(), new ArrayList<>());
+
+                List<ProductImageResponse> imageResponses = images.stream()
+                        .map(productImageMapper::toProductImageResponse)
+                        .toList();
+
+                response.setImages(imageResponses);
+                return response;
+            });
+        }
+        return Page.empty();
     }
 
     private void validateImageFile(MultipartFile file) {
