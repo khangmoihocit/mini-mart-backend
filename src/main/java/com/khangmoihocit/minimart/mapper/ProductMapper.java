@@ -10,11 +10,14 @@ import org.mapstruct.MappingTarget;
 @Mapper(componentModel = "spring")
 public interface ProductMapper {
     @Mapping(target = "images", ignore = true)
+    @Mapping(target = "sizes", ignore = true)
     ProductResponse toProductResponse(Product product);
 
     @Mapping(target = "category", ignore = true)
+    @Mapping(target = "sizes", ignore = true)
     Product toProduct(ProductRequest productRequest);
 
     @Mapping(target = "category", ignore = true)
+    @Mapping(target = "sizes", ignore = true)
     void updateProduct(ProductRequest productRequest, @MappingTarget Product product);
 }
