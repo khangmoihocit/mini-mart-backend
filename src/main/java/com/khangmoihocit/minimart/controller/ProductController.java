@@ -4,6 +4,7 @@ import com.khangmoihocit.minimart.dto.request.ProductRequest;
 import com.khangmoihocit.minimart.dto.request.ProductSearchRequest;
 import com.khangmoihocit.minimart.dto.request.UpdateImageRequest;
 import com.khangmoihocit.minimart.dto.response.ApiResponse;
+import com.khangmoihocit.minimart.dto.response.PageResponse;
 import com.khangmoihocit.minimart.dto.response.ProductResponse;
 import com.khangmoihocit.minimart.service.ProductService;
 import jakarta.validation.Valid;
@@ -86,7 +87,8 @@ public class ProductController {
     }
 
     @GetMapping("/advanced-search")
-    ApiResponse<Page<ProductResponse>> advancedSearch(
+    ApiResponse<PageResponse<ProductResponse>> advancedSearch(
+            jakarta.servlet.http.HttpServletRequest request,
             @RequestParam(name = "keyword", required = false) String keyword,
             @RequestParam(name = "categoryId", required = false) String categoryId,
             @RequestParam(name = "minPrice", required = false) BigDecimal minPrice,
@@ -106,8 +108,10 @@ public class ProductController {
                 .build();
 
         Page<ProductResponse> products = productService.advancedSearch(searchRequest);
-        return ApiResponse.<Page<ProductResponse>>builder()
-                .result(products)
+
+        PageResponse<ProductResponse> pageResponse = PageResponse.of(products);
+        return ApiResponse.<PageResponse<ProductResponse>>builder()
+                .result(pageResponse)
                 .build();
     }
 
@@ -117,4 +121,5 @@ public class ProductController {
                 .result(productService.findById(id))
                 .build();
     }
+
 }

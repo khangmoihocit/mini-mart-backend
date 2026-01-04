@@ -11,6 +11,8 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: false
+
+
 api:
   prefix: /api/v1
 

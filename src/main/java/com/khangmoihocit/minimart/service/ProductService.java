@@ -17,4 +17,5 @@ public interface ProductService extends BaseCRUDService<ProductResponse, Product
 
     Page<ProductResponse> advancedSearch(ProductSearchRequest searchRequest);
 
+    Long count();
 }

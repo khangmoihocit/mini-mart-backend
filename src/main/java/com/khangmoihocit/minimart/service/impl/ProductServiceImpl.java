@@ -35,6 +35,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -370,34 +371,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Page<ProductResponse> advancedSearch(ProductSearchRequest searchRequest) {
-        // Xác định sort
-        Sort sort = Sort.unsorted();
-        if (searchRequest.getSortBy() != null) {
-            switch (searchRequest.getSortBy().toLowerCase()) {
-                case "price_asc":
-                    sort = Sort.by(Sort.Direction.ASC, "price");
-                    break;
-                case "price_desc":
-                    sort = Sort.by(Sort.Direction.DESC, "price");
-                    break;
-                case "newest":
-                    sort = Sort.by(Sort.Direction.DESC, "createdAt");
-                    break;
-                default:
-                    sort = Sort.by(Sort.Direction.DESC, "createdAt");
-                    break;
-            }
-        }
-
-        // Tạo pageable - nếu không truyền pageSize thì lấy tất cả
-        Pageable pageable;
-        if (searchRequest.getPageSize() == null || searchRequest.getPageSize() <= 0) {
-            pageable = Pageable.unpaged(sort);
-        } else {
-            int pageNo = searchRequest.getPageNo() != null && searchRequest.getPageNo() > 0
-                ? searchRequest.getPageNo() - 1 : 0;
-            pageable = PageRequest.of(pageNo, searchRequest.getPageSize(), sort);
-        }
+        log.info("Advanced search request: {}", searchRequest);
 
         // Tạo specification cho advanced search
         Specification<Product> spec = ProductSpecification.filterProducts(
@@ -407,7 +381,58 @@ public class ProductServiceImpl implements ProductService {
             searchRequest.getMaxPrice()
         );
 
-        Page<Product> products = productRepository.findAll(spec, pageable);
+        // Kiểm tra xem có sort theo giá hay không
+        boolean isPriceSort = searchRequest.getSortBy() != null &&
+            (searchRequest.getSortBy().equalsIgnoreCase("price_asc") ||
+             searchRequest.getSortBy().equalsIgnoreCase("price_desc"));
+
+        // Nếu sort theo giá, fetch tất cả và sort trong memory
+        // Để tránh lỗi nullsLast() với Criteria Queries
+        Page<Product> products;
+        if (isPriceSort) {
+            // Lấy tất cả kết quả phù hợp điều kiện (không phân trang)
+            List<Product> allProducts = productRepository.findAll(spec);
+
+            // Sort theo effective price (salePrice nếu có, không thì dùng price)
+            allProducts.sort((p1, p2) -> {
+                BigDecimal effectivePrice1 = p1.getSalePrice() != null ? p1.getSalePrice() : p1.getPrice();
+                BigDecimal effectivePrice2 = p2.getSalePrice() != null ? p2.getSalePrice() : p2.getPrice();
+
+                int comparison = effectivePrice1.compareTo(effectivePrice2);
+                return searchRequest.getSortBy().equalsIgnoreCase("price_desc") ? -comparison : comparison;
+            });
+
+            // Tạo pageable và phân trang thủ công
+            int pageSize = searchRequest.getPageSize() != null && searchRequest.getPageSize() > 0
+                ? searchRequest.getPageSize() : 10;
+            int pageNo = searchRequest.getPageNo() != null && searchRequest.getPageNo() > 0
+                ? searchRequest.getPageNo() - 1 : 0;
+
+            int start = Math.min(pageNo * pageSize, allProducts.size());
+            int end = Math.min(start + pageSize, allProducts.size());
+            List<Product> pageContent = allProducts.subList(start, end);
+
+            Pageable pageable = PageRequest.of(pageNo, pageSize);
+            products = new org.springframework.data.domain.PageImpl<>(pageContent, pageable, allProducts.size());
+        } else {
+            // Sort thông thường (không có vấn đề với nullsLast)
+            Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
+            if (searchRequest.getSortBy() != null && searchRequest.getSortBy().equalsIgnoreCase("newest")) {
+                sort = Sort.by(Sort.Direction.DESC, "createdAt");
+            }
+
+            Pageable pageable;
+            if (searchRequest.getPageSize() == null || searchRequest.getPageSize() <= 0) {
+                pageable = PageRequest.of(0, Integer.MAX_VALUE, sort);
+            } else {
+                int pageNo = searchRequest.getPageNo() != null && searchRequest.getPageNo() > 0
+                    ? searchRequest.getPageNo() - 1 : 0;
+                pageable = PageRequest.of(pageNo, searchRequest.getPageSize(), sort);
+            }
+
+            products = productRepository.findAll(spec, pageable);
+        }
+
 
         List<String> productIds = products.getContent().stream().map(Product::getId).toList();
         List<ProductImage> productImages = productImageRepository.findByProductIdIn(productIds);
@@ -450,5 +475,10 @@ public class ProductServiceImpl implements ProductService {
             response.setSizes(sizeResponses);
             return response;
         });
+    }
+
+    @Override
+    public Long count() {
+        return productRepository.count();
     }
 }
