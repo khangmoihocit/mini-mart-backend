@@ -29,6 +29,11 @@ public class CartDetail {
     @OnDelete(action = OnDeleteAction.CASCADE)
     Product product;
 
+    @ManyToOne
+    @JoinColumn(name = "product_size_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    ProductSize productSize;
+
     @Column(name = "quantity", nullable = false)
     Integer quantity;
 }
