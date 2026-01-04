@@ -65,6 +65,12 @@ public enum ErrorCode {
     COUPON_EXPIRED(5002, "Mã giảm giá đã hết hạn.", HttpStatus.BAD_REQUEST),
     COUPON_CONDITIONS_NOT_MET(5003, "Đơn hàng không đủ điều kiện áp dụng mã giảm giá.", HttpStatus.BAD_REQUEST),
 
+    // --- Lỗi Đánh giá sản phẩm (6xxx) ---
+    REVIEW_NOT_FOUND(6001, "Không tìm thấy đánh giá.", HttpStatus.NOT_FOUND),
+    REVIEW_ALREADY_EXISTS(6002, "Bạn đã đánh giá sản phẩm này rồi.", HttpStatus.BAD_REQUEST),
+    UNAUTHORIZED(6003, "Bạn không có quyền thực hiện thao tác này.", HttpStatus.FORBIDDEN),
+    USER_NOT_EXISTED(6004, "Người dùng không tồn tại.", HttpStatus.NOT_FOUND),
+
     ;
 
 

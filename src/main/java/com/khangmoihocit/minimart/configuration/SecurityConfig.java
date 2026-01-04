@@ -52,6 +52,9 @@ public class SecurityConfig {
             "/api/v1/products/test-search",
             "/api/v1/products/advanced-search",
             "/api/v1/products/**",
+            "/api/v1/reviews/products/**",
+            "/api/v1/reviews/**",
+            "/api/v1/reviews/product/*/rating",
             "/images/**"
     };
 
