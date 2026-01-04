@@ -27,4 +27,7 @@ public interface ProductRepository extends JpaRepository<Product, String>, JpaSp
                     "p.description LIKE CONCAT('%', :keyword, '%'))",
             nativeQuery = true)
     Page<Product> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);
+
+    @Query(value = "SELECT * FROM products p WHERE p.category_id = :categoryId LIMIT 10", nativeQuery = true)
+    List<Product> findByCategoryId(@Param("categoryId") String categoryId);
 }

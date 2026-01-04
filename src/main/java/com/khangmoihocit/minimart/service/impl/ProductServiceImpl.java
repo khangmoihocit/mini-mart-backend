@@ -319,17 +319,20 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional
     public void delete(String id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
-        //lấy tất cả ảnh sản phẩm và xóa file ảnh trong thư mục
+
+        // Xóa tất cả ảnh sản phẩm và file ảnh trong thư mục
         List<ProductImage> existingImages = productImageRepository.findByProductId(id);
         existingImages.forEach(image -> deleteImageFile(image.getImageUrl()));
         productImageRepository.deleteAll(existingImages);
 
-        //xóa tất cả sizes của sản phẩm
+        // Xóa tất cả sizes của sản phẩm
         productSizeRepository.deleteByProductId(id);
 
+        // Xóa sản phẩm
         productRepository.deleteById(id);
     }
 
@@ -520,5 +523,21 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Long count() {
         return productRepository.count();
+    }
+
+    @Override
+    public List<ProductResponse> findByCategoryId(String categoryId) {
+        List<Product> productList = productRepository.findByCategoryId(categoryId);
+        return productList.stream().map(product -> {
+            ProductResponse productResponse = productMapper.toProductResponse(product);
+
+            List<ProductImage> productImages = productImageRepository.findByProductId(product.getId());
+            productResponse.setImages(productImages.stream().map(productImageMapper::toProductImageResponse).toList());
+
+            List<ProductSize> productSizes = productSizeRepository.findByProductId(product.getId());
+            productResponse.setSizes(productSizes.stream().map(productSizeMapper::toProductSizeResponse).toList());
+
+            return productResponse;
+        }).toList();
     }
 }
