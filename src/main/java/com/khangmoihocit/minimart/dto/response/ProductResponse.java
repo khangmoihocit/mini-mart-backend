@@ -24,4 +24,5 @@ public class ProductResponse {
 
     CategoryResponse category;
     List<ProductImageResponse> images;
+    List<ProductSizeResponse> sizes;
 }

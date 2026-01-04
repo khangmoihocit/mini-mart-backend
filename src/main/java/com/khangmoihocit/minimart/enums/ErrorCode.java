@@ -37,7 +37,7 @@ public enum ErrorCode {
 
     // --- Lỗi Phân quyền (21xx) ---
     // HTTP Status là 401.
-    UNAUTHENTICATED(2101, "Vui lòng đăng nhập", HttpStatus.UNAUTHORIZED), // 401
+    UNAUTHENTICATED(2101, "Please login!", HttpStatus.UNAUTHORIZED), // 401
 
 
     // HTTP Status là 403.
