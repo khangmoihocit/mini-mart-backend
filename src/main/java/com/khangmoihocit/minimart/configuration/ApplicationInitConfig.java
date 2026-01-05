@@ -30,14 +30,14 @@ public class ApplicationInitConfig {
         return args -> {
             if (userRepository.findByEmail("admin@gmail.com").isEmpty()) {
 
-                if(roleRepository.existsById("USER")){
+                if(!roleRepository.existsById("USER")){
                     roleRepository.save(Role.builder()
                             .name("USER")
                             .description("user role")
                             .build());
                 }
 
-                if(roleRepository.existsById("ADMIN")){
+                if(!roleRepository.existsById("ADMIN")){
                     roleRepository.save(Role.builder()
                             .name("ADMIN")
                             .description("admin role")
