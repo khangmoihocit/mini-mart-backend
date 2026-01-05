@@ -37,4 +37,7 @@ public class OrderDetail {
 
     @Column(name = "total_money", nullable = false, precision = 12, scale = 2)
     BigDecimal totalMoney;
+
+    @Column(name = "size_name", length = 50)
+    String sizeName;
 }
