@@ -18,13 +18,11 @@ public interface ProductRepository extends JpaRepository<Product, String>, JpaSp
 
     @Query(value = "SELECT * FROM products p WHERE " +
             "(:keyword IS NULL OR :keyword = '' OR " +
-            "p.name LIKE CONCAT('%', :keyword, '%') OR " +
-            "p.description LIKE CONCAT('%', :keyword, '%'))",
+            "p.name LIKE CONCAT('%', :keyword, '%'))",
 
             countQuery = "SELECT count(*) FROM products p WHERE " +
                     "(:keyword IS NULL OR :keyword = '' OR " +
-                    "p.name LIKE CONCAT('%', :keyword, '%') OR " +
-                    "p.description LIKE CONCAT('%', :keyword, '%'))",
+                    "p.name LIKE CONCAT('%', :keyword, '%'))",
             nativeQuery = true)
     Page<Product> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);
 
