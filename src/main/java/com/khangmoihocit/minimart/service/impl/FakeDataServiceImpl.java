@@ -253,8 +253,7 @@ public class FakeDataServiceImpl implements FakeDataService {
     }
 
     private void createProductImages(Product product, Random random) {
-        // Mỗi product có 1-2 ảnh
-        int numImages = 1 + random.nextInt(2);
+        int numImages = 2 + random.nextInt(2); // 2-3 ảnh
 
         for (int i = 0; i < numImages; i++) {
             String imageUrl = IMAGE_URLS[random.nextInt(IMAGE_URLS.length)];
