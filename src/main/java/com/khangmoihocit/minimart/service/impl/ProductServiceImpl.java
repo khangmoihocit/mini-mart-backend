@@ -98,12 +98,32 @@ public class ProductServiceImpl implements ProductService {
         }
 
         // Update sizes if provided
-        if (productRequest.getSizes() != null) {
+        List<ProductSize> savedSizes = new ArrayList<>();
+        if (productRequest.getSizes() != null && !productRequest.getSizes().isEmpty()) {
             productSizeRepository.deleteByProductId(id);
-            processAndSaveSizes(productRequest.getSizes(), product);
+            savedSizes = processAndSaveSizes(productRequest.getSizes(), product);
+        } else {
+            savedSizes = productSizeRepository.findByProductId(id);
         }
 
-        return productMapper.toProductResponse(product);
+        // Get existing images
+        List<ProductImage> existingImages = productImageRepository.findByProductId(id);
+
+        // Build response with complete information
+        ProductResponse productResponse = productMapper.toProductResponse(product);
+
+        List<ProductImageResponse> imageResponses = existingImages.stream()
+                .map(productImageMapper::toProductImageResponse)
+                .toList();
+
+        List<ProductSizeResponse> sizeResponses = savedSizes.stream()
+                .map(productSizeMapper::toProductSizeResponse)
+                .toList();
+
+        productResponse.setImages(imageResponses);
+        productResponse.setSizes(sizeResponses);
+
+        return productResponse;
     }
 
 
@@ -124,14 +144,30 @@ public class ProductServiceImpl implements ProductService {
         existingImages.forEach(image -> deleteImageFile(image.getImageUrl()));
         productImageRepository.deleteAll(existingImages);
 
-
         List<ProductImage> savedImages = processAndSaveImages(files, product);
 
+        // Get kept images if any
+        List<ProductImage> allImages = new ArrayList<>(savedImages);
+        if(keepImageIds != null && !keepImageIds.isEmpty()) {
+            List<ProductImage> keptImages = productImageRepository.findByProductIdAndIdIn(id, keepImageIds);
+            allImages.addAll(keptImages);
+        }
+
+        // Get sizes
+        List<ProductSize> productSizes = productSizeRepository.findByProductId(id);
+
         ProductResponse productResponse = productMapper.toProductResponse(product);
-        List<ProductImageResponse> imageResponses = savedImages.stream()
+
+        List<ProductImageResponse> imageResponses = allImages.stream()
                 .map(productImageMapper::toProductImageResponse)
                 .toList();
+
+        List<ProductSizeResponse> sizeResponses = productSizes.stream()
+                .map(productSizeMapper::toProductSizeResponse)
+                .toList();
+
         productResponse.setImages(imageResponses);
+        productResponse.setSizes(sizeResponses);
 
         return productResponse;
     }
@@ -283,17 +319,20 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional
     public void delete(String id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
-        //lấy tất cả ảnh sản phẩm và xóa file ảnh trong thư mục
+
+        // Xóa tất cả ảnh sản phẩm và file ảnh trong thư mục
         List<ProductImage> existingImages = productImageRepository.findByProductId(id);
         existingImages.forEach(image -> deleteImageFile(image.getImageUrl()));
         productImageRepository.deleteAll(existingImages);
 
-        //xóa tất cả sizes của sản phẩm
+        // Xóa tất cả sizes của sản phẩm
         productSizeRepository.deleteByProductId(id);
 
+        // Xóa sản phẩm
         productRepository.deleteById(id);
     }
 
@@ -415,7 +454,7 @@ public class ProductServiceImpl implements ProductService {
             Pageable pageable = PageRequest.of(pageNo, pageSize);
             products = new org.springframework.data.domain.PageImpl<>(pageContent, pageable, allProducts.size());
         } else {
-            // Sort thông thường (không có vấn đề với nullsLast)
+            // Sort thông thường - chỉ dùng Sort đơn giản, không dùng nullsLast
             Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
             if (searchRequest.getSortBy() != null && searchRequest.getSortBy().equalsIgnoreCase("newest")) {
                 sort = Sort.by(Sort.Direction.DESC, "createdAt");
@@ -423,14 +462,18 @@ public class ProductServiceImpl implements ProductService {
 
             Pageable pageable;
             if (searchRequest.getPageSize() == null || searchRequest.getPageSize() <= 0) {
-                pageable = PageRequest.of(0, Integer.MAX_VALUE, sort);
+                // Không dùng sort khi lấy tất cả để tránh lỗi với Criteria Query
+                pageable = PageRequest.of(0, Integer.MAX_VALUE);
+                // Sẽ sort trong memory sau khi fetch
+                List<Product> allProducts = productRepository.findAll(spec);
+                allProducts.sort((p1, p2) -> p2.getCreatedAt().compareTo(p1.getCreatedAt()));
+                products = new org.springframework.data.domain.PageImpl<>(allProducts, pageable, allProducts.size());
             } else {
                 int pageNo = searchRequest.getPageNo() != null && searchRequest.getPageNo() > 0
                     ? searchRequest.getPageNo() - 1 : 0;
                 pageable = PageRequest.of(pageNo, searchRequest.getPageSize(), sort);
+                products = productRepository.findAll(spec, pageable);
             }
-
-            products = productRepository.findAll(spec, pageable);
         }
 
 
@@ -480,5 +523,21 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Long count() {
         return productRepository.count();
+    }
+
+    @Override
+    public List<ProductResponse> findByCategoryId(String categoryId) {
+        List<Product> productList = productRepository.findByCategoryId(categoryId);
+        return productList.stream().map(product -> {
+            ProductResponse productResponse = productMapper.toProductResponse(product);
+
+            List<ProductImage> productImages = productImageRepository.findByProductId(product.getId());
+            productResponse.setImages(productImages.stream().map(productImageMapper::toProductImageResponse).toList());
+
+            List<ProductSize> productSizes = productSizeRepository.findByProductId(product.getId());
+            productResponse.setSizes(productSizes.stream().map(productSizeMapper::toProductSizeResponse).toList());
+
+            return productResponse;
+        }).toList();
     }
 }

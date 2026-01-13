@@ -56,11 +56,6 @@ public class Order {
     @Column(name = "payment_method", length = 100)
     String paymentMethod;
 
-    @ManyToOne
-    @JoinColumn(name = "coupon_id")
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    Coupon coupon;
-
     @Column(name = "order_date")
     LocalDateTime orderDate;
 

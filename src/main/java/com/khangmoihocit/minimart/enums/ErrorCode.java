@@ -49,16 +49,27 @@ public enum ErrorCode {
     PRODUCT_NOT_FOUND(3001, "Không tìm thấy sản phẩm.", HttpStatus.NOT_FOUND),
     CATEGORY_NOT_FOUND(3002, "Không tìm thấy danh mục.", HttpStatus.NOT_FOUND),
     OUT_OF_STOCK(3003, "Sản phẩm đã hết hàng.", HttpStatus.BAD_REQUEST),
+    PRODUCT_SIZE_NOT_FOUND(3004, "Không tìm thấy size sản phẩm.", HttpStatus.NOT_FOUND),
+    INVALID_PRODUCT_SIZE(3005, "Size không thuộc sản phẩm này.", HttpStatus.BAD_REQUEST),
 
     // --- Lỗi Giỏ hàng & Đơn hàng (4xxx) ---
     CART_IS_EMPTY(4001, "Giỏ hàng của bạn đang trống.", HttpStatus.BAD_REQUEST),
-    ORDER_NOT_FOUND(4002, "Không tìm thấy đơn hàng.", HttpStatus.NOT_FOUND),
-    CANNOT_CANCEL_ORDER(4003, "Không thể hủy đơn hàng ở trạng thái này.", HttpStatus.BAD_REQUEST),
+    CART_ITEM_NOT_FOUND(4002, "Không tìm thấy sản phẩm trong giỏ hàng.", HttpStatus.NOT_FOUND),
+    INVALID_QUANTITY(4003, "Số lượng không hợp lệ.", HttpStatus.BAD_REQUEST),
+    INSUFFICIENT_STOCK(4004, "Số lượng sản phẩm trong kho không đủ.", HttpStatus.BAD_REQUEST),
+    ORDER_NOT_FOUND(4005, "Không tìm thấy đơn hàng.", HttpStatus.NOT_FOUND),
+    CANNOT_CANCEL_ORDER(4006, "Không thể hủy đơn hàng ở trạng thái này.", HttpStatus.BAD_REQUEST),
 
     // --- Lỗi Mã giảm giá (Coupon) (5xxx) ---
     COUPON_NOT_FOUND(5001, "Mã giảm giá không tồn tại hoặc đã hết hạn.", HttpStatus.NOT_FOUND),
     COUPON_EXPIRED(5002, "Mã giảm giá đã hết hạn.", HttpStatus.BAD_REQUEST),
     COUPON_CONDITIONS_NOT_MET(5003, "Đơn hàng không đủ điều kiện áp dụng mã giảm giá.", HttpStatus.BAD_REQUEST),
+
+    // --- Lỗi Đánh giá sản phẩm (6xxx) ---
+    REVIEW_NOT_FOUND(6001, "Không tìm thấy đánh giá.", HttpStatus.NOT_FOUND),
+    REVIEW_ALREADY_EXISTS(6002, "Bạn đã đánh giá sản phẩm này rồi.", HttpStatus.BAD_REQUEST),
+    UNAUTHORIZED(6003, "Bạn không có quyền thực hiện thao tác này.", HttpStatus.FORBIDDEN),
+    USER_NOT_EXISTED(6004, "Người dùng không tồn tại.", HttpStatus.NOT_FOUND),
 
     ;
 

@@ -46,6 +46,14 @@ public class ProductController {
                 .build();
     }
 
+    @GetMapping("/by-category")
+    ApiResponse<List<ProductResponse>> getAllProductByCategory(@RequestParam(name = "categoryId") String categoryId) {
+        List<ProductResponse> result = productService.findByCategoryId(categoryId);
+        return ApiResponse.<List<ProductResponse>>builder()
+                .result(result)
+                .build();
+    }
+
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     ApiResponse<ProductResponse> updateProduct(@PathVariable String id, @Valid @ModelAttribute ProductRequest request) {

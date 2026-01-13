@@ -16,4 +16,8 @@ public interface ProductImageRepository extends JpaRepository<ProductImage, Stri
     @Query("SELECT pm FROM ProductImage pm WHERE pm.product.id = :productId AND pm.id NOT IN :ids")
     List<ProductImage> findByProductIdAndIdNotIn(@Param("productId") String productId,
                                                  @Param("ids") List<String> ids);
+
+    @Query("SELECT pm FROM ProductImage pm WHERE pm.product.id = :productId AND pm.id IN :ids")
+    List<ProductImage> findByProductIdAndIdIn(@Param("productId") String productId,
+                                              @Param("ids") List<String> ids);
 }
